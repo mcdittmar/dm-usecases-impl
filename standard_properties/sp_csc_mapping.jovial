@@ -1,0 +1,293 @@
+def localBase  = "file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/assets/examples"
+def voluteBase = "https://volute.g-vo.org/svn/trunk/projects/dm"
+def ivoaBase   = "https://www.ivoa.net/xml"
+
+def ivoaLocation   = new URL("$ivoaBase/VODML/IVOA-v1.vo-dml.xml")
+def coordsLocation = new URL("$ivoaBase/STC/20200908/Coords-v1.0.vo-dml.xml")
+def measLocation   = new URL("$ivoaBase/Meas/20200908/Meas-v1.0.vo-dml.xml")
+def photLocation   = new URL("$voluteBase/vo-dml-org/models/photdm-alt/PhotDM-alt.vo-dml.xml")
+def dsLocation     = new URL("$voluteBase/DatasetMetadata/vo-dml/DatasetMetadata-1.0.vo-dml.xml")
+def cubeLocation   = new URL("$voluteBase/Cube/vo-dml/Cube-1.0.vo-dml.xml")
+def mangoLocation  = new URL("file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/tmp/Mango-v1.0.vo-dml.xml")
+
+//
+// Template for annotating DM Workshop Standard Properties case Chandra Source Catalog (CSC) file 
+//
+// Column mapping                  colname                 ID
+//    Source.identifier         => name                   col0
+//    LonLatSkyPosition				          
+//      * coord					          
+//          longitude           => gal_l                  col9
+//          latitude            => gal_b                  col10
+//     	* error                 => none		          
+//    Flux 					          
+//      * coord (Photometry)			          
+//          flux                => o.flux_aper_b          col15
+//      * error (Symmetrical)   => none		          
+//    HardnessRatio				          
+//      * coord					          
+//          hardnessRatio       => o.hard_*               col16|19|22
+//      * error (bounds)			          
+//          lo_limit            => o.hard_*_lolim         col17|20|23
+//          hi_limit            => o.hard_*_hilim         col_18|21|24
+//						          
+//    Obs. Duration				          
+//      * coord (PhysicalCoord)			          
+//          cval                => none		          
+//    Obs. StartTime				          
+//      * coord (ISOTime)			          
+//          date                => o.gti_obs              col8
+//    Extentded Flag (FLAG)			          
+//      * coord					          
+//          status              => extent_flag            col2
+//    Variablility Flag (FLAG)                            
+//      * coord                                           
+//          status              => var_inter_hard_flag    col3
+//
+
+dmInstance {
+    model(vodmlURL: mangoLocation)
+    model(vodmlURL: measLocation)
+    model(vodmlURL: coordsLocation)
+    model(vodmlURL: ivoaLocation)
+
+    // Space Frame
+    instance(id: "_coosys", type: "coords:SpaceSys")
+    {
+        instance(role: "frame", type: "coords:SpaceFrame")
+        {
+            instance(role: "spaceRefFrame", type: "ivoa:string", value: "GALACTIC")
+            instance(role: "equinox", type: "coords:Epoch", value: "J2000.0" )
+        }
+    }
+    // Time Frame
+    instance(id: "_timesys", type: "coords:TimeSys")
+    {
+        instance(role: "frame", type: "coords:TimeFrame")
+        {
+            instance(role: "timescale", type: "ivoa:string", value: "TT")
+        }
+    }
+    // Photometry Filter - EB1
+    instance(id: "_photsys_EB1", type: "mango:coordinates.PhotometryCoordSys"){
+        instance(id: "_filter_EB1", role: "frame", type: "mango:coordinates.PhotFilter")
+        {
+            instance(role: "name", type: "ivoa:string", value: "CHANDRA/ACIS.broad")
+            instance(role: "unit", type: "ivoa:string", value: "keV")
+        }
+    }
+    // Photometry Filter - EB2
+    instance(id: "_photsys_EB2", type: "mango:coordinates.PhotometryCoordSys"){
+        instance(id: "_filter_EB2", role: "frame", type: "mango:coordinates.PhotFilter")
+        {
+            instance(role: "name", type: "ivoa:string", value: "CHANDRA/ACIS.hard")
+            instance(role: "unit", type: "ivoa:string", value: "keV")
+        }
+    }
+    // Photometry Filter - EB3
+    instance(id: "_photsys_EB3", type: "mango:coordinates.PhotometryCoordSys"){
+        instance(id: "_filter_EB3", role: "frame", type: "mango:coordinates.PhotFilter")
+        {
+            instance(role: "name", type: "ivoa:string", value: "CHANDRA/ACIS.medium")
+            instance(role: "unit", type: "ivoa:string", value: "keV")
+        }
+    }
+    // Photometry Filter - EB4
+    instance(id: "_photsys_EB4", type: "mango:coordinates.PhotometryCoordSys"){
+        instance(id: "_filter_EB4", role: "frame", type: "mango:coordinates.PhotFilter")
+        {
+            instance(role: "name", type: "ivoa:string", value: "CHANDRA/ACIS.soft")
+            instance(role: "unit", type: "ivoa:string", value: "keV")
+        }
+    }
+    // Hardness Ratio Frame - (EB2 - EB4)
+    instance(id: "_hrsys_A", type: "mango:coordinates.HardnessRatioSys"){
+        instance(role: "frame", type: "mango:coordinates.HardnessRatioFrame")
+        {
+            reference(role: "low", idref: "_filter_EB2")
+            reference(role: "high", idref: "_filter_EB4")
+        }
+    }
+    // Hardness Ratio Frame - (EB3 - EB4)
+    instance(id: "_hrsys_B", type: "mango:coordinates.HardnessRatioSys"){
+        instance(role: "frame", type: "mango:coordinates.HardnessRatioFrame")
+        {
+            reference(role: "low", idref: "_filter_EB3")
+            reference(role: "high", idref: "_filter_EB4")
+        }
+    }
+    // Hardness Ratio Frame - (EB2 - EB3)
+    instance(id: "_hrsys_C", type: "mango:coordinates.HardnessRatioSys"){
+        instance(role: "frame", type: "mango:coordinates.HardnessRatioFrame")
+        {
+            reference(role: "low", idref: "_filter_EB2")
+            reference(role: "high", idref: "_filter_EB3")
+        }
+    }
+    // Extended Flag - Defintion
+    instance( id: "_extflagsys", type: "mango:coordinates.FlagSys" )
+    {
+	instance(role: "statusLabels", type: "mango:coordinates.FlagState" ){
+	    instance(role: "value", type: "ivoa:integer", value: "0" )
+	    instance(role: "label", type: "ivoa:string", value: "Not Extended" )
+	}
+	instance(role: "statusLabels", type: "mango:coordinates.FlagState" ){
+	    instance(role: "value", type: "ivoa:integer", value: "1" )
+	    instance(role: "label", type: "ivoa:string", value: "Extended source" )
+	}
+    }
+    // Variability Flag - Defintion
+    instance( id: "_varflagsys", type: "mango:coordinates.FlagSys" )
+    {
+	instance(role: "statusLabels", type: "mango:coordinates.FlagState" ){
+	    instance(role: "value", type: "ivoa:integer", value: "0" )
+	    instance(role: "label", type: "ivoa:string", value: "good" )
+	}
+	instance(role: "statusLabels", type: "mango:coordinates.FlagState" ){
+	    instance(role: "value", type: "ivoa:integer", value: "1" )
+	    instance(role: "label", type: "ivoa:string", value: "Source hardness ratios are statistically inconsistent between two or more observations" )
+	}
+    }
+    table(id: "Results")
+    {
+	instance(type: "mango:Source")
+	{
+	    column(role: "identifier", id: "col0", type: "ivoa:string",data: [] )
+	    // Position
+	    instance(role: "parameterDock", type: "mango:Parameter"){
+		instance(role: "semantic", type: "mango:VocabularyTerm"){
+		    instance(role: "label", type: "ivoa:string", value: "position" )
+		}
+		instance(role: "ucd", type: "ivoa:string", value: "pos")
+	        instance(role: "measure", type: "mango:measures.LonLatSkyPosition"){
+	            instance(role: "coord", type: "mango:coordinates.LonLatPoint"){
+	                column(role: "longitude", id: "col9", type: "ivoa:RealQuantity", data: [] )
+	        	column(role: "latitude", id: "col10", type: "ivoa:RealQuantity", data: [] )
+	        	reference(role: "coordSys", type: "mango:coordinates.LonLatCoordSys", idref: "_coosys" )
+		    }
+		}
+	    }
+	    // FLUX - EB1
+	    instance(role: "parameterDock", type: "mango:Parameter"){
+		instance(role: "semantic", type: "mango:VocabularyTerm"){
+		    instance(role: "label", type: "ivoa:string", value: "flux" )
+		}
+		instance(role: "ucd", type: "ivoa:string", value: "phot.flux")
+	        instance(role: "measure", type: "mango:measures.Photometry"){
+	            instance(role: "coord", type: "mango:coordinates.PhotometryCoord"){
+	                column(role: "luminosity", id: "col15", type: "ivoa:RealQuantity", data: [] )
+	        	reference(role: "coordSys", type: "mango:coordinates.PhotometryCoordSys", idref: "_photsys_EB1" )
+		    }
+		}
+	    }
+	    // HardnessRatio - EB2:4
+	    instance(role: "parameterDock", type: "mango:Parameter"){
+		instance(role: "semantic", type: "mango:VocabularyTerm"){
+		    instance(role: "label", type: "ivoa:string", value: "hardness_ratio" )
+		}
+		instance(role: "ucd", type: "ivoa:string", value: "phot.color")
+	        instance(role: "measure", type: "mango:measures.HardnessRatio"){
+	            instance(role: "coord", type: "mango:coordinates.HardnessRatioCoord"){
+	                column(role: "hardnessRatio", id: "col16", type: "ivoa:real", data: [] )
+	        	reference(role: "coordSys", type: "mango:coordinates.PhotometryCoordSys", idref: "_hrsys_A" )
+		    }
+		    instance(role: "meas:Measure.error", type: "meas:Error"){
+		        instance(role: "statError", type: "meas:Bounds1D" ){
+		            column(role: "loLimit", type: "ivoa:RealQuantity", id: "col17", data: [])
+		            column(role: "hiLimit", type: "ivoa:RealQuantity", id: "col18", data: [])
+			}
+		    }
+		}
+	    }
+	    // HardnessRatio - EB3:4
+	    instance(role: "parameterDock", type: "mango:Parameter"){
+		instance(role: "semantic", type: "mango:VocabularyTerm"){
+		    instance(role: "label", type: "ivoa:string", value: "hardness_ratio" )
+		}
+		instance(role: "ucd", type: "ivoa:string", value: "phot.color")
+	        instance(role: "measure", type: "mango:measures.HardnessRatio"){
+	            instance(role: "coord", type: "mango:coordinates.HardnessRatioCoord"){
+	                column(role: "hardnessRatio", id: "col19", type: "ivoa:real", data: [] )
+	        	reference(role: "coordSys", type: "mango:coordinates.PhotometryCoordSys", idref: "_hrsys_B" )
+		    }
+		    instance(role: "meas:Measure.error", type: "meas:Error"){
+		        instance(role: "statError", type: "meas:Bounds1D" ){
+		            column(role: "loLimit", type: "ivoa:RealQuantity", id: "col20", data: [])
+		            column(role: "hiLimit", type: "ivoa:RealQuantity", id: "col21", data: [])
+			}
+		    }
+		}
+	    }
+	    // HardnessRatio - EB3:4
+	    instance(role: "parameterDock", type: "mango:Parameter"){
+		instance(role: "semantic", type: "mango:VocabularyTerm"){
+		    instance(role: "label", type: "ivoa:string", value: "hardness_ratio" )
+		}
+		instance(role: "ucd", type: "ivoa:string", value: "phot.color")
+	        instance(role: "measure", type: "mango:measures.HardnessRatio"){
+	            instance(role: "coord", type: "mango:coordinates.HardnessRatioCoord"){
+	                column(role: "hardnessRatio", id: "col22", type: "ivoa:real", data: [] )
+	        	reference(role: "coordSys", type: "mango:coordinates.PhotometryCoordSys", idref: "_hrsys_B" )
+		    }
+		    instance(role: "meas:Measure.error", type: "meas:Error"){
+		        instance(role: "statError", type: "meas:Bounds1D" ){
+		            column(role: "loLimit", type: "ivoa:RealQuantity", id: "col23", data: [])
+		            column(role: "hiLimit", type: "ivoa:RealQuantity", id: "col24", data: [])
+			}
+		    }
+		}
+	    }
+	    // Observation Duration
+	    //instance(role: "parameterDock", type: "mango:Parameter"){
+	    //	instance(role: "semantic", type: "mango:VocabularyTerm"){
+	    //	    instance(role: "label", type: "ivoa:string", value: "obs.exposure" )
+	    //	}
+	    //	instance(role: "ucd", type: "ivoa:string", value: "time.duration")
+	    //    instance(role: "measure", type: "meas:GenericMeasure"){
+	    //        instance(role: "coord", type: "coords:PhysicalCoordinate"){
+	    //            column(role: "cval", id: "_ep_ontime_385", type: "ivoa:RealQuantity", data: [] )
+	    //	    }
+	    //	}
+	    //}
+	    // Observation Start Time
+	    instance(role: "parameterDock", type: "mango:Parameter"){
+	    	instance(role: "semantic", type: "mango:VocabularyTerm"){
+	    	    instance(role: "label", type: "ivoa:string", value: "obs.start" )
+	    	}
+	    	instance(role: "ucd", type: "ivoa:string", value: "time")
+	        instance(role: "measure", type: "meas:Time"){
+	            instance(role: "coord", type: "coords:ISOTime"){
+	                column(role: "date", id: "col8", type: "ivoa:datetime", data: [] )
+	        	reference(role: "coordSys", type: "coords:TimeSys", idref: "_timesys" )			
+	    	    }
+	    	}
+	    }
+	    // Extended Flag
+	    instance(role: "parameterDock", type: "mango:Parameter"){
+		instance(role: "semantic", type: "mango:VocabularyTerm"){
+		    instance(role: "label", type: "ivoa:string", value: "quality" )
+		}
+		instance(role: "ucd", type: "ivoa:string", value: "src.extent")
+	        instance(role: "measure", type: "mango:measures.Flag"){
+	            instance(role: "coord", type: "mango:coordinates.FlagCoord"){
+	                column(role: "status", id: "col2", type: "ivoa:integer", data: [] )
+	        	reference(role: "coordSys", type: "mango:coordinates.FlagSys", idref: "_extflagsys" )
+		    }
+		}
+	    }
+	    // Variability Flag
+	    instance(role: "parameterDock", type: "mango:Parameter"){
+		instance(role: "semantic", type: "mango:VocabularyTerm"){
+		    instance(role: "label", type: "ivoa:string", value: "quality" )
+		}
+		instance(role: "ucd", type: "ivoa:string", value: "src.var")
+	        instance(role: "measure", type: "mango:measures.Flag"){
+	            instance(role: "coord", type: "mango:coordinates.FlagCoord"){
+	                column(role: "status", id: "col3", type: "ivoa:integer", data: [] )
+	        	reference(role: "coordSys", type: "mango:coordinates.FlagSys", idref: "_varflagsys" )
+		    }
+		}
+	    }
+        }
+    }
+}

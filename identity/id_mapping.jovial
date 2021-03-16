@@ -1,0 +1,23 @@
+def localBase  = "file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/assets/examples"
+def voluteBase = "https://volute.g-vo.org/svn/trunk/projects/dm"
+def ivoaBase   = "https://www.ivoa.net/xml"
+
+def ivoaLocation   = new URL("$ivoaBase/VODML/IVOA-v1.vo-dml.xml")
+def mangoLocation  = new URL("file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/tmp/Mango-v1.0.vo-dml.xml")
+
+//
+// Template for annotating DM Workshop Identity case file
+//
+
+dmInstance {
+    model(vodmlURL: mangoLocation)
+    model(vodmlURL: ivoaLocation)
+
+    table(id: "Results")
+    {
+	instance(type: "mango:Source")
+	{
+	    column(role: "identifier", id: "_oid", type: "ivoa:string",data: ["11173722","11173790","11237005"] )
+        }
+    }
+}

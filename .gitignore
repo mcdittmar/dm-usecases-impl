@@ -1,0 +1,11 @@
+#
+# Project specific excludes
+#
+*.xml
+*.xml.orig
+*.vot
+*_results.txt
+*.png
+
+# OS
+.DS_Store

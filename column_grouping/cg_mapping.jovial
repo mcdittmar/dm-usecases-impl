@@ -1,0 +1,81 @@
+def localBase  = "file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/assets/examples"
+def voluteBase = "https://volute.g-vo.org/svn/trunk/projects/dm"
+def ivoaBase   = "https://www.ivoa.net/xml"
+
+def ivoaLocation   = new URL("$ivoaBase/VODML/IVOA-v1.vo-dml.xml")
+def coordsLocation = new URL("$ivoaBase/STC/20200908/Coords-v1.0.vo-dml.xml")
+def measLocation   = new URL("$ivoaBase/Meas/20200908/Meas-v1.0.vo-dml.xml")
+def mangoLocation  = new URL("file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/tmp/Mango-v1.0.vo-dml.xml")
+
+//
+// Template for annotating DM Workshop Column Grouping case file
+//
+
+dmInstance {
+    model(vodmlURL: mangoLocation)
+    model(vodmlURL: measLocation)
+    model(vodmlURL: coordsLocation)
+    model(vodmlURL: ivoaLocation)
+
+    instance(id: "_coosys1", type: "coords:SpaceSys")
+    {
+        instance(role: "frame", type: "coords:SpaceFrame")
+        {
+            instance(role: "spaceRefFrame", type: "ivoa:string", value: "FK4")
+            instance(role: "equinox", type: "coords:Epoch", value: "B1950")
+	    instance(role: "refPosition", type: "coords:StdRefLocation" ){
+	        instance(role:"position", type: "ivoa:string", value: "BARYCENTER" )
+	    }
+        }
+    }
+    instance(id: "_coosys2", type: "coords:SpaceSys")
+    {
+        instance(role: "frame", type: "coords:SpaceFrame")
+        {
+            instance(role: "spaceRefFrame", type: "ivoa:string", value: "FK4")
+            instance(role: "equinox", type: "coords:Epoch", value: "B1950")
+	    instance(role: "refPosition", type: "coords:StdRefLocation" ){
+	        instance(role:"position", type: "ivoa:string", value: "HELIOCENTER" )
+	    }
+        }
+    }
+    table(id: "Results")
+    {
+	instance(type: "mango:Source")
+	{
+	    column(role: "identifier", id: "_id_main", type: "ivoa:string",data: ["1"] )
+	    
+	    instance(role: "parameterDock", id: "_prop01", type: "mango:Parameter"){
+		instance(role: "ucd", type: "ivoa:string", value: "pos.eq")
+            	instance(role: "measure", type: "meas:Position"){
+	            instance(role: "coord", type: "coords:Point"){
+	                column(role: "axis1", id: "_ra", type: "ivoa:RealQuantity", data: [123.222] )
+	    	        column(role: "axis2", id: "_dec", type: "ivoa:RealQuantity", data: [-12.0] )
+	    	        reference(role: "coordSys", idref: "_coosys1" )
+			}
+		}
+	    }
+	    instance(role: "parameterDock", id: "_prop02", type: "mango:Parameter"){
+		instance(role: "ucd", type: "ivoa:string", value: "spect.dopplerVeloc")
+	        instance(role: "measure", type: "meas:Velocity"){
+	            instance(role: "coord", type: "coords:Point"){
+	                column(role: "axis3", id: "_rv", type: "ivoa:RealQuantity", data: [-11.0] )
+	        	reference(role: "coordSys", idref: "_coosys2" )
+	            }
+	        }
+		reference(role: "associatedParameters", idref: "_prop03")
+		reference(role: "associatedParameters", idref: "_prop04")
+		reference(role: "associatedParameters", idref: "_prop05")
+	    }
+	    instance(role: "parameterDock", id: "_prop03", type: "mango:Parameter"){
+		instance(role: "ucd", type: "ivoa:string", value: "meta.code.qual")
+	    }
+	    instance(role: "parameterDock", id: "_prop04", type: "mango:Parameter"){
+		instance(role: "ucd", type: "ivoa:string", value: "meta.number")
+	    }
+	    instance(role: "parameterDock", id: "_prop05", type: "mango:Parameter"){
+		instance(role: "ucd", type: "ivoa:string", value: "meta.ref")
+	    }
+        }
+    }
+}

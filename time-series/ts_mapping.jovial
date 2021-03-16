@@ -1,0 +1,131 @@
+def localBase  = "file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/assets/examples"
+def voluteBase = "https://volute.g-vo.org/svn/trunk/projects/dm"
+def ivoaBase   = "https://www.ivoa.net/xml"
+
+def ivoaLocation   = new URL("$ivoaBase/VODML/IVOA-v1.vo-dml.xml")
+def coordsLocation = new URL("$ivoaBase/STC/20200908/Coords-v1.0.vo-dml.xml")
+def measLocation   = new URL("$ivoaBase/Meas/20200908/Meas-v1.0.vo-dml.xml")
+def photLocation   = new URL("$voluteBase/vo-dml-org/models/photdm-alt/PhotDM-alt.vo-dml.xml")
+def dsLocation     = new URL("$voluteBase/DatasetMetadata/vo-dml/DatasetMetadata-1.0.vo-dml.xml")
+def cubeLocation   = new URL("$voluteBase/Cube/vo-dml/Cube-1.0.vo-dml.xml")
+
+//
+// Template for annotating DM Workshop TimeSeries case file
+//
+
+dmInstance {
+    model(vodmlURL: cubeLocation)
+    model(vodmlURL: dsLocation)
+    model(vodmlURL: measLocation)
+    model(vodmlURL: coordsLocation)
+    model(vodmlURL: ivoaLocation)
+
+    instance(id: "ndupgogudgda", type: "coords:TimeSys")
+    {
+        instance(role: "frame", type: "coords:TimeFrame")
+        {
+            instance(role: "timescale", type: "ivoa:string", value: "TCB")
+            instance(role: "refPosition", type: "coords:StdRefLocation")
+            {
+                instance(role: "position", type: "ivoa:string", value: "BARYCENTER")
+            }
+        }
+    }
+    instance(id: "ndupgoguduna", type: "coords:SpaceSys")
+    {
+        instance(role: "frame", type: "coords:SpaceFrame")
+        {
+            instance(role: "spaceRefFrame", type: "ivoa:string", value: "ICRS")
+            instance(role: "equinox", type: "coords:Epoch", value: "J2015.5")
+        }
+    }
+    instance(id: "ndupgogudnea", type: "meas:Position"){
+        instance(role: "coord", type: "coords:Point"){
+	    instance(role: "axis1", type: "ivoa:RealQuantity", value: "ref-ra" )
+	    instance(role: "axis2", type: "ivoa:RealQuantity", value: "ref-dec" )
+	    reference(role: "coordSys", idref: "ndupgoguduna" )
+	 }
+    }
+    instance(id: "ndupgbaamxyz", type: "photdm-alt:PhotometryFilter"){
+        instance(role: "photdm-alt:PhotometryFilter.identifier", type: "ivoa:string", value: "GAIA/GAIA2.G")
+        instance(role: "photdm-alt:PhotometryFilter.spectralLocation", type: "ivoa:RealQuantity", value: "6.23e-7")
+    }
+    instance(id: "ndupgbaameit", type: "photdm-alt:PhotCal"){
+        reference(role: "photdm-alt:PhotCal.photometryFilter", idref: "ndupgbaamxyz")
+    	instance(role: "photdm-alt:PhotCal.zeroPoint", type: "photdm-alt:LinearFlux"){
+    	    instance(role: "photdm-alt:ZeroPoint.flux", type: "ivoa:RealQuantity", value: "2836.53")
+    	}
+    	instance(role: "photdm-alt:PhotCal.magnitudeSystem", type: "photdm-alt:MagnidtudeSystem"){
+    	    instance(role: "photdm-alt:MagnitudeSystem.type", type: "ivoa:string", value: "Vega")
+    	}
+    }
+    instance(id: "ndupgttnahba", type: "photdm-alt:PhotCal"){
+        reference(role: "photdm-alt:PhotCal.photometryFilter", idref: "ndupgbaamxyz")
+    }
+    instance(type: "ds:experiment.ObsDataset") {
+        instance(role: "dataProductType", value: "TIMESERIES")
+        instance(role: "dataProductSubtype", value: "lightcurve")
+        instance(role: "calibLevel", value: 1)
+        instance(role: "dataID") {
+	    instance(role: "title", value: "ref-title")
+        }
+	instance(role: "curation"){
+	    instance(role: "publisher", type: "ds:dataset.Publisher"){
+	        instance(role: "party", type: "ds:party.Organization"){
+		        instance(role: "name", value: "GAVO Data Center")
+		    }
+	        instance(role: "publisherID", value: "ivo://org.gavo.dc")
+		}
+	}
+	instance(role: "target", type: "ds:experiment.Target"){
+            instance(role: "name", value: "1866721434011386240")
+	    reference(role: "position", idref: "ndupgogudnea" )
+	}
+    }
+
+    instance(type: "cube:SparseCube") {
+        composition(role: "data", ref: "_cube1_data")
+    }
+    
+    table(id: "_lightcurve_G") {
+
+        instance(id: "_cube1_data", type: "cube:NDPoint") {
+
+	    instance(role: "observable") {
+                instance role: "dependent", value: "False"
+
+                instance(role: "measure", type: "meas:Time") {
+                    instance(role: "coord", type: "coords:JD") {
+                        column(role: "date", id:"obs_time", data: [] )
+                        reference(role: "coordSys", idref: "ndupgogudgda")
+                    }
+                }
+            }
+
+            instance(role: "observable") {
+                instance role: "dependent", value: "True"
+
+                instance(role: "measure", type: "meas:GenericMeasure") {
+                    instance (role: "coord", type: "coords:PhysicalCoordinate") {
+                        column(role: "cval", id: "phot", type: "ivoa:RealQuantity", data: [])
+                    }
+                }
+            }
+
+            instance(role: "observable") {
+                instance role: "dependent", value: "True"
+
+                instance(role: "measure", type: "meas:GenericMeasure") {
+                    instance(role: "coord", type: "coords:PhysicalCoordinate") {
+                        column(role: "cval", id: "flux", type: "ivoa:RealQuantity", data: [])
+                    }
+                    instance(role: "error", type: "meas:Error") {
+                        instance(role: "statError", type: "meas:Symmetrical") {
+                            column(role: "radius", id: "flux_error", type: "ivoa:RealQuantity", data: [])
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
