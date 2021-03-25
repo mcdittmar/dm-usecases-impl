@@ -58,7 +58,7 @@ dmInstance {
 	instance(id: "_associated_spectra", type: "mango:WebEndpoint")
 	{
 	    fk(target: "_source"){
-	        column(id: "source_oid", type: "ivoa:string", data: [] )
+	        column(id: "oidsaada_199", type: "ivoa:string", data: [] )
             }
             instance(role: "semantic", type: "mango:VocabularyTerm" ){
                 instance(role: "label", type: "ivoa:string", value: "spectrum.raw" )

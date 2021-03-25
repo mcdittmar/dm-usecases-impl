@@ -4,6 +4,7 @@
 *.xml
 *.xml.orig
 *.vot
+*.vot.orig
 *_results.txt
 *.png
 

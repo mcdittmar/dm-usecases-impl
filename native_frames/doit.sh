@@ -1,3 +1,8 @@
+# Manually insert annotation into raw file
+#  + FIELDs referenced in annotation need IDs added
+# ----------------------------------------------------------------------
+set rawfile="vizier_csc2_gal.xml"
+set annfile="vizier_csc2_gal_annotated.vot"
 
 # Generate Annotation and validate:
 ../utils/annotate.sh -t nf_mapping.jovial -o nf_annotation.vot
@@ -6,9 +11,7 @@
 #  + VODML segment goes at top, right after VOTABLE node.
 #  + VOTABLE and RESOURCE nodes of annotation are not transferred
 #
-# Manually insert annotation into raw file
-#  + FIELDs referenced in annotation need IDs added
-cp vizier_csc2_gal.xml vizier_csc2_gal_annotated.vot
+cp vizier_csc2_gal.xml vizier_csc2_gal_annotated.votp
 emacs vizier_csc2_gal_annotated.vot nf_annotation.vot
 
 #
