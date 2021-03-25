@@ -1,0 +1,70 @@
+def localBase  = "file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/assets/examples"
+def voluteBase = "https://volute.g-vo.org/svn/trunk/projects/dm"
+def ivoaBase   = "https://www.ivoa.net/xml"
+
+def ivoaLocation   = new URL("$ivoaBase/VODML/IVOA-v1.vo-dml.xml")
+def coordsLocation = new URL("$ivoaBase/STC/20200908/Coords-v1.0.vo-dml.xml")
+def measLocation   = new URL("$ivoaBase/Meas/20200908/Meas-v1.0.vo-dml.xml")
+def photLocation   = new URL("$voluteBase/vo-dml-org/models/photdm-alt/PhotDM-alt.vo-dml.xml")
+def dsLocation     = new URL("$voluteBase/DatasetMetadata/vo-dml/DatasetMetadata-1.0.vo-dml.xml")
+def cubeLocation   = new URL("$voluteBase/Cube/vo-dml/Cube-1.0.vo-dml.xml")
+def mangoLocation  = new URL("file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/tmp/Mango-v1.0.vo-dml.xml")
+
+//
+// Template for annotating DM Workshop Combined Data case file
+//
+
+dmInstance {
+    model(vodmlURL: mangoLocation)
+    model(vodmlURL: measLocation)
+    model(vodmlURL: coordsLocation)
+    model(vodmlURL: ivoaLocation)
+
+    instance(id: "_spacesys", type: "coords:SpaceSys")
+    {
+        instance(role: "frame", type: "coords:SpaceFrame")
+        {
+            instance(role: "spaceRefFrame", type: "ivoa:string", value: "ICRS")
+        }
+    }
+    table(id: "_results")
+    {
+	instance(id: "_source", type: "mango:Source")
+	{
+	    pk(){
+	        column(id: "oidsaada_100", type: "ivoa:string", data: [])
+	    }
+	    column(role: "identifier", id: "oidsaada_100", type: "ivoa:string",data: [] )
+	    instance(role: "parameterDock", type: "mango:Parameter"){
+		instance(role: "ucd", type: "ivoa:string", value: "pos")
+            	instance(role: "measure", type: "meas:Position"){
+	            instance(role: "coord", type: "coords:Point"){
+	                column(role: "axis1", id: "pos_ra_csa_102", type: "ivoa:RealQuantity", data: [] )
+	    	        column(role: "axis2", id: "pos_dec_csa_103", type: "ivoa:RealQuantity", data: [] )
+	    	        reference(role: "coordSys", idref: "_spacesys" )
+			}
+                    instance(role: "error", type: "meas:Error") {
+                        instance(role: "statError", type: "meas:Symmetrical") {
+                            column(role: "radius", id: "error_min_csa_106", type: "ivoa:RealQuantity", data: [])
+                        }
+                    }
+		}
+            }
+	    composition(role: "associatedDataDock", ref: "_associated_spectra")
+        }
+    }
+    table(id: "_spectra")
+    {
+	instance(id: "_associated_spectra", type: "mango:WebEndpoint")
+	{
+	    fk(target: "_source"){
+	        column(id: "source_oid", type: "ivoa:string", data: [] )
+            }
+            instance(role: "semantic", type: "mango:VocabularyTerm" ){
+                instance(role: "label", type: "ivoa:string", value: "spectrum.raw" )
+            }
+            column(role: "ContentType", id: "product_type", type: "ivoa:string", data: [] )
+            column(role: "url", id: "data_access", type: "ivoa:anyURI", data: [] )
+        }
+    }
+}
