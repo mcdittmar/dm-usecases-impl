@@ -7,6 +7,11 @@
 *.vot.orig
 *_results.txt
 *.png
-
+#
+# Directories
+baselines
+input
+output
+#
 # OS
 .DS_Store

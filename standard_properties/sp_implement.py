@@ -59,7 +59,10 @@ from rama.reader.votable import Votable
 
 from rama.models.mango import Source, LonLatSkyPosition, Photometry, HardnessRatio, Flag
 from rama.models.measurements import Time, GenericMeasure
-                                                        
+
+sys.path.append('../utils')
+from printutils import *
+
 def main(infile):
     sys.stdout.write("Input file: %s\n"%infile)
 
@@ -75,58 +78,43 @@ def main(infile):
 
     sys.stdout.write("\n")
     sys.stdout.write("Goal: Detail Level content summary\n")
-    srcno = 2
-    sys.stdout.write("o Source number: %d\n"%( srcno+1 ) )
-    sys.stdout.write("o Identifier: %s\n"%( str(catalog.identifier[srcno])) )
 
-    matches = find_property( catalog, Time, "obs.start" )
+    srcno = 2
+    source = catalog.unroll()[srcno]
+
+    sys.stdout.write("o Source number: {}\n".format( srcno+1 ) )
+    sys.stdout.write("o Identifier: {}\n".format( source.identifier ))
+
+    matches = find_property( source, Time, "obs.start" )
     if ( matches is None ):
-        sys.stdout.write("o Obs Start:     none\n")
+        sys.stdout.write("o Obs Start: none\n")
     else:
         for prop in matches:
-            # Display Time in MJD (Time == astropy.core.time.Time type )
-            sys.stdout.write("o Obs Start:     %.6f [%s]\n"%( prop.measure.coord.mjd[srcno],
-                                                              prop.measure.coord.scale.upper()) )
+            sys.stdout.write( "o {}\n".format( measure_toString( prop.measure ).replace("Time:", "Obs Start:" )))
 
-    matches = find_property( catalog, GenericMeasure, "obs.exposure" )
+    matches = find_property( source, GenericMeasure, "obs.exposure" )
     if ( matches is None ):
         sys.stdout.write("o Obs Duration:  none\n")
     else:
         for prop in matches:
-            sys.stdout.write("o Obs Duration:  %.6f %s\n"%( prop.measure.coord.cval.value[srcno],
-                                                            str(prop.measure.coord.cval.unit) ) )
+            sys.stdout.write("o {}\n".format( measure_toString( prop.measure ).replace("GenericMeasure:","Obs Duration:")))
 
-    matches = find_property( catalog, LonLatSkyPosition, "position" )
+    matches = find_property( source, LonLatSkyPosition, "position" )
     for prop in matches:
-        sys.stdout.write("o Position: ( %10.6f, %10.6f ) %s [%s]\n"%( prop.measure.coord.longitude.value[srcno],
-                                                                      prop.measure.coord.latitude.value[srcno],
-                                                                      str(prop.measure.coord.longitude.unit),
-                                                                      prop.measure.coord.coord_sys.frame.space_ref_frame) )
+        sys.stdout.write("o {}\n".format( measure_toString( prop.measure )))
 
-    matches = find_property( catalog, Photometry, "flux" )
+    matches = find_property( source, Photometry, "flux" )
     for prop in (matches):
-        sys.stdout.write("o Flux: (%10.3e %s) %s  [band=%s]\n"%( prop.measure.coord.luminosity.value[srcno],
-                                                                 display_error(prop, srcno),
-                                                                 str(prop.measure.coord.luminosity.unit),
-                                                                 prop.measure.coord.coord_sys.frame.name) )
+        sys.stdout.write("o {}\n".format( measure_toString( prop.measure )))
 
-    matches = find_property( catalog, HardnessRatio, "hardness_ratio" )
+    matches = find_property( source, HardnessRatio, "hardness_ratio" )
     for prop in (matches):
-        if (hasattr( prop.measure.coord.hardness_ratio, "value") ):
-            value = prop.measure.coord.hardness_ratio.value[srcno]
-        else:
-            value = prop.measure.coord.hardness_ratio[srcno]
-        sys.stdout.write("o HardnessRatio: (%6.3f %s) [band_low=%s, band_high=%s]\n"%( value,
-                                                                                       display_error(prop, srcno),
-                                                                                       prop.measure.coord.coord_sys.frame.high.name,
-                                                                                       prop.measure.coord.coord_sys.frame.low.name ) )
+        sys.stdout.write("o {}\n".format( measure_toString( prop.measure )))
 
-    matches = find_property( catalog, Flag, "quality" )
+    matches = find_property( source, Flag, "quality" )
     for prop in (matches):
-        grade = [rec.label for rec in prop.measure.coord.coord_sys.status_labels if rec.value == prop.measure.coord.status[srcno]]
-        sys.stdout.write("o Quality: %d [%s]\n"%( prop.measure.coord.status[srcno],
-                                                  grade[0] ) )
-    
+        sys.stdout.write("o {}\n".format( measure_toString( prop.measure ).replace("Flag:","Quality:")))
+
     sys.stdout.write("\n")
     sys.stdout.write("Done\n")
 
@@ -141,27 +129,6 @@ def find_property( catalog, prop_type, role ):
 
     return None
 
-def display_error( prop, row ):
-
-    if prop.measure.error is None:
-        outstr = "+/- [none]"
-    elif ( hasattr( prop.measure.error.stat_error, "radius" ) ):
-        if ( hasattr( prop.measure.error.stat_error.radius, "value" ) ):
-            outstr = "+/- %6.3e"%(prop.measure.error.stat_error.radius.value[row])
-        else:
-            outstr = "+/- %6.3e"%(prop.measure.error.stat_error.radius[row])
-    elif ( hasattr( prop.measure.error.stat_error, "lo_limit" ) ):
-        if ( hasattr( prop.measure.error.stat_error.lo_limit, "value" ) ):
-            outstr = "+/- [hi:%6.3f, low:%6.3f]"%(prop.measure.error.stat_error.hi_limit.value[row],
-                                                  prop.measure.error.stat_error.lo_limit.value[row])
-        else:
-            outstr = "+/- [hi:%6.3f, low:%6.3f]"%(prop.measure.error.stat_error.hi_limit[row],
-                                                  prop.measure.error.stat_error.lo_limit[row])
-    else:
-        outstr = "Not implemented"
-    
-    return outstr
-
 if __name__=="__main__":
     try:
         if len(sys.argv) != 2:
@@ -171,7 +138,3 @@ if __name__=="__main__":
         sys.stderr.write("ERROR: Invalid usage\n")
         sys.exit(msg)
 
-
-# Rama 'bug'
-#  catalog.unroll() - does not work unless all content is iterable.
-#                     Position, for example, is not.. so if Source contains Position, cannot unroll
