@@ -4,6 +4,7 @@
 #
 # ------------------------------------------------------------------------------
 """
+  # Overview
   This case involves data extracted from the Chandra Source Catalog, Release 2.0
   containing Source ID and Position in 2 reference frames (ICRS, GALACTIC).
 
@@ -12,41 +13,6 @@
     + Positions in multiple reference frames
     + Flux in multiple bands
 
-  The data has been annotated using IVOA VO-DML Mapping syntax
-  * one Position using the Measurment model Position with Point coordinate,
-    which rama automatically converts to an astroPy SkyCoord.
-  * one Position using the Mango model LonLatSkyPosition with LonLatPoint coordinate.
-
-  Annotation was produced using the 'Jovial' modeling toolset (Java).  Jovial
-  was written by Omar Laurino, and updated by me to the current data model content.
-  It provides utilities to help define and create instances of (annotations)
-  IVOA VO-DML compliant data models.
-
-  Uses the 'rama' python package to parse annotated data file and instantiate
-  instances of VO Data Model Classes.  The package also applies Adapters which
-  translate certain VO Data Model Classes to corresponding AstroPY types.
-    eg: meas:Point -> astropy:SkyCoord
-    eg: meas:Time  -> astropy:Time
-  This package was developed by Omar Laurino, and updated by me to the current 
-  data model content.
-
-  Resources Used
-  Mapping Syntax
-  + Working Draft document:  
-    https://volute.g-vo.org/svn/trunk/projects/dm/vo-dml-mapping/doc/VO-DML_mapping_WD.pdf
-
-  Jovial Library
-  + version used in this project:  
-    https://github.com/mcdittmar/jovial
-  + master repository:  
-    https://github.com/olaurino/jovial
-
-  Rama module
-  + version used in this project:  
-    https://github.com/mcdittmar/rama
-  + master repository:  
-    https://github.com/olaurino/rama
-  
 """
 import sys
 import os
@@ -64,18 +30,24 @@ from astropy import units as u
 import matplotlib.pyplot as plt
 
 def main(infile):
-    sys.stdout.write("Input file: %s\n"%infile)
+    outfile = "./output/nf_results.md"
+    fh = open( outfile, "w" )
+
+    fh.write("## Model Instance Summary:\n")
+    fh.write("Input file: {}\n".format(infile))
+    fh.write("\n")
 
     # Load annotated file
     doc = Reader( Votable(infile) )
+    catalog = doc.find_instances(Source)[0]
 
     # Find/Identify Positions
-    sys.stdout.write("\n")
-    sys.stdout.write("Goal: Find/Identify Positions\n")
-    sys.stdout.write("Note: LonLatSkyPosition should not be needed; mango:LonLatPoint should be subclass of coords:Point.\n" )
-    sys.stdout.write("      This would allow us to use doc.find_instances(Position) to find all Position properties\n")
-    sys.stdout.write("Note: rama auto-converts coords:Point to astropy:SkyCoord while mango:LonLatPoint remains in model representation.\n" )
-    catalog = doc.find_instances(Source)[0]
+    fh.write("\n")
+    fh.write("### Goal: Find/Identify Positions\n")
+    fh.write("Note: LonLatSkyPosition should not be needed; mango:LonLatPoint should be subclass of coords:Point.  \n" )
+    fh.write("      This would allow us to use doc.find_instances(Position) to find all Position properties  \n")
+    fh.write("Note: rama auto-converts coords:Point to astropy:SkyCoord while mango:LonLatPoint remains in model representation.  \n" )
+    fh.write("```\n")
     positions = []
     for param in ( catalog.parameter_dock ):
         if type(param.measure) in [ Position, LonLatSkyPosition ]:
@@ -83,52 +55,63 @@ def main(infile):
                 frame = param.measure.coord.frame.name
             else:
                 frame = param.measure.coord.coord_sys.frame.space_ref_frame
-            sys.stdout.write("o Found Position in '%s' frame\n"%(frame))
-            sys.stdout.write("  + coord type = %s\n"%str(type(param.measure.coord) ))
+            fh.write("  o Found Position in '%s' frame\n"%(frame))
+            fh.write("    + coord type = %s\n"%str(type(param.measure.coord) ))
             positions.append(param.measure)
+    fh.write("```\n")
             
     # Find/Identify Positions - UCD method
-    sys.stdout.write("\n")
-    sys.stdout.write("Goal: Find/Identfiy Positions - UCD method\n")
-    sys.stdout.write("Note: IMO the Parameter.ucd is redundant with the Measurement class and should not be a modeled element\n")
-    sys.stdout.write("      I believe this is to accommodate unmodeled Properties, but a single UCD here will not resolve\n")
-    sys.stdout.write("      underlying dependencies that will also be unmodeled/missing (eg: flux relation to PhotCal )\n")
+    fh.write("\n")
+    fh.write("### Goal: Find/Identfiy Positions - UCD method\n")
+    fh.write("Note: IMO the Parameter.ucd is redundant with the Measurement class and should not be a modeled element  \n")
+    fh.write("      I believe this is to accommodate unmodeled Properties, but a single UCD here will not resolve  \n")
+    fh.write("      underlying dependencies that will also be unmodeled/missing (eg: flux relation to PhotCal )  \n")
+    fh.write("```\n")
     for param in ( catalog.parameter_dock ):
         if param.ucd.startswith("pos"):
             if isinstance( param.measure.coord, SkyCoord ):
                 frame = param.measure.coord.frame.name
             else:
                 frame = param.measure.coord.coord_sys.frame.space_ref_frame
-            sys.stdout.write("o Found Position in '%s' frame\n"%(frame))
-            sys.stdout.write("  + coord type = %s\n"%str(type(param.measure.coord) ))
+            fh.write("  o Found Position in '%s' frame\n"%(frame))
+            fh.write("    + coord type = %s\n"%str(type(param.measure.coord) ))
+    fh.write("```\n")
 
     # Convert LonLatSkyPoint to AstroPy SkyCoord
-    sys.stdout.write("\n")
-    sys.stdout.write("Goal: Convert to AstroPy SkyCoord\n")
-    sys.stdout.write("Note:  - as noted above, meas:Point is auto-converted by rama\n")
-    sys.stdout.write("Note:  - the following can form an adapter on LonLatPoint to enable auto-convertion\n")
+    fh.write("\n")
+    fh.write("### Goal: Convert to AstroPy SkyCoord\n")
+    fh.write("Note:  - as noted above, meas:Point is auto-converted by rama  \n")
+    fh.write("Note:  - the following can form an adapter on LonLatPoint to enable auto-convertion  \n")
+    fh.write("```\n")
     coords1 = positions[0].coord
     coords2 = SkyCoord( positions[1].coord.longitude,
                         positions[1].coord.latitude,
                         frame=positions[1].coord.coord_sys.frame.space_ref_frame.lower(),
                         equinox=positions[1].coord.coord_sys.frame.equinox,
                         unit=positions[1].coord.longitude.unit )
-    sys.stdout.write("o coords1: type=%s, frame=%s\n"%(str(type(coords1)), coords1.frame.name ))
-    sys.stdout.write("o coords2: type=%s, frame=%s\n"%(str(type(coords2)), coords2.frame.name ))
+    fh.write("  o coords1: type=%s, frame=%s\n"%(str(type(coords1)), coords1.frame.name ))
+    fh.write("  o coords2: type=%s, frame=%s\n"%(str(type(coords2)), coords2.frame.name ))
+    fh.write("```\n")
                      
 
     # Convert both to common reference frame
-    sys.stdout.write("\n")
-    sys.stdout.write("Goal: Convert both to common frame - client's preferred frame.\n")
+    fh.write("\n")
+    fh.write("### Goal: Convert both to common frame - client's preferred frame.\n")
+    fh.write("    coords1_user = coords1.transform_to(FK5(equinox=\"J2015.5\"))  \n")
+    fh.write("    coords2_user = coords2.transform_to(FK5(equinox=\"J2015.5\"))  \n")
+    fh.write("\n")
+    fh.write("results in\n")
+    fh.write("```\n")
     coords1_user = coords1.transform_to(FK5(equinox="J2015.5"))
     coords2_user = coords2.transform_to(FK5(equinox="J2015.5"))
-    sys.stdout.write("o coords1: type=%s, frame=%s\n"%(str(type(coords1_user)), coords1_user.frame.name ))
-    sys.stdout.write("o coords2: type=%s, frame=%s\n"%(str(type(coords2_user)), coords2_user.frame.name ))
+    fh.write("  o coords1: type={}, frame={}\n".format(str(type(coords1_user)), coords1_user.frame.name ))
+    fh.write("  o coords2: type={}, frame={}\n".format(str(type(coords2_user)), coords2_user.frame.name ))
+    fh.write("```\n")
 
     # 
     # Bonus - Plot 
-    sys.stdout.write("\n")
-    sys.stdout.write("Goal: Plot the data\n")
+    fh.write("\n")
+    fh.write("### Goal: Plot the data\n")
     plt.figure( figsize=(6.5,6.5) )
     plt.suptitle("Plots of Source Data")
     plt.subplots_adjust(top=0.90,bottom=0.1)
@@ -150,8 +133,6 @@ def main(infile):
 
     plt.show()
 
-    
-    sys.stdout.write("\n")
     sys.stdout.write("Done\n")
     
     
