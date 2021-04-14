@@ -12,7 +12,7 @@ def get_type_name( obj ):
     result = '.'.join( (obj.__class__.__module__, obj.__class__.__name__) )
     return result
     
-def cube_toString( cube ):
+def cube_toString( cube, data=True ):
     """
     proxy for cube:SparseCube.toString()
     """
@@ -22,12 +22,14 @@ def cube_toString( cube ):
     result += "  o Dependent Axis: {}\n".format(str(cube.data[0].dependent))
     result += "  o Length: {}\n".format(len(cube.data))
 
-    axis1 = cube.data[0].independent[0]
-    axis2 = cube.data[0].dependent[0]
-    for ii in range(len(cube.data)):
-        if cube.data[ii] is not None:
-            result += "  o    {}      {}\n".format(measure_toString(cube.data[ii][axis1]._axis.measure),
-                                                   measure_toString(cube.data[ii][axis2]._axis.measure))
+    if data:
+        axis1 = cube.data[0].independent[0]
+        for ii in range(len(cube.data)):
+            if cube.data[ii] is not None:
+                result += "  o    {}".format(measure_toString(cube.data[ii][axis1]._axis.measure))
+                for axis in cube.data[0].dependent:
+                    result += "      {}".format(measure_toString(cube.data[ii][axis]._axis.measure))
+                result += "\n"
 
     return result
 
