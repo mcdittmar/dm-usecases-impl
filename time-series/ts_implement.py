@@ -6,93 +6,123 @@
 """
   Utility to load Time Series data annotated using the IVOA VODML Mapping Syntax
   and perform various operations on it.
-
-  Annotation was produced using the 'Jovial' modeling toolset (Java).  Jovial
-  was written by Omar Laurino, and updated by me to the current data model content.
-  It provides utilities to help define and create instances of (annotations)
-  IVOA VO-DML compliant data models.
-
-  Uses the 'rama' python package to parse annotated data file and instantiate
-  instances of VO Data Model Classes.  The package also applies Adapters which
-  translate certain VO Data Model Classes to corresponding AstroPY types.
-    eg: meas:Point -> astropy:SkyCoord
-    eg: meas:Time  -> astropy:Time
-  This package was developed by Omar Laurino, and updated by me to the current 
-  data model content.
-
-  Resources:
-
-    Mapping Syntax
-      https://volute.g-vo.org/svn/trunk/projects/dm/vo-dml-mapping/doc/VO-DML_mapping_WD.pdf
-
-    Jovial Library
-      version used in this project
-        https://github.com/mcdittmar/jovial
-      master repository
-        https://github.com/olaurino/jovial
-
-    Rama module
-      version used in this project
-        https://github.com/mcdittmar/rama
-      master repository
-        https://github.com/olaurino/rama
-  
 """
 import sys
 import os
 from rama.reader import Reader
 from rama.reader.votable import Votable
-from rama.models.dataset import ObsDataset
-from rama.models.dataset import Target
-from rama.models.cube import SparseCube,NDPoint
-from rama.models.measurements import Measure
-from rama.tools.timeseries import TimeSeries
+from rama.models.cube import SparseCube
+from rama.models.measurements import Symmetrical
+
+from matplotlib import pyplot as plt
+
+sys.path.append('../utils')
+from printutils import *
+
 
 def main(infile):
-    sys.stdout.write("Input file: %s\n"%infile)
 
-    # Load file
-    doc = Reader( Votable(infile) )
-
-    # What kind of data product is it?
-    sys.stdout.write("\n")
-    sys.stdout.write("Goal: Identify the whole thing as a time series\n")
-    dataset = doc.find_instances(ObsDataset)[0]
-    sys.stdout.write("  o Data Product Type: %s\n"%dataset.data_product_type)
-    sys.stdout.write("  o Data Product SubType: %s\n"%dataset.data_product_subtype)
-
-    # Interrogate Cube
-    ndpoint = doc.find_instances(NDPoint)[0]
-    sys.stdout.write("\n")
-    sys.stdout.write("Goal: Identify independent/dependent axes\n")
-    sys.stdout.write("   o Independent Axes: %s\n"%str(ndpoint.independent) )
-    sys.stdout.write("   o Dependent Axes: %s\n"%str(ndpoint.dependent) )
+    ts_summary( infile )
     
     sys.stdout.write("\n")
-    sys.stdout.write("Goal: Associate values and errors\n")
-    for axis in ( ndpoint.axes ):
-        sys.stdout.write("    o Axis '%s' has error? %s\n"%(axis.name,"no" if (axis.stat_error is None) else "yes" ) )
-
-    sys.stdout.write("\n")
-    sys.stdout.write("Goal: Find target object and position\n")
-    sys.stdout.write("      NOTE - rama's attempt to auto-convert Position to AstroPy SkyCoord fails due to missing units in serialization.. so the meas:Position instance is returned.\n");
-    target = doc.find_instances(Target)[0]
-    sys.stdout.write("  o Target name/id: %s\n"%(target.name) )
-    sys.stdout.write("  o Target position: (%7.4lf [%s], %7.4lf [%s]) frame=%s epoch=%s\n"%(target.position.coord.axis1.value,
-                                                                                            target.position.coord.axis1.unit,
-                                                                                            target.position.coord.axis2.value,
-                                                                                            target.position.coord.axis2.unit,
-                                                                                            target.position.coord.coord_sys.frame.space_ref_frame,
-                                                                                            target.position.coord.coord_sys.frame.equinox
-                                                                                            ) )
-    # Bonus - Plot TimeSeries
-    sys.stdout.write("\n")
-    sys.stdout.write("Goal: Plot the data\n")
-    sys.stdout.write("      - rama has added plotter decorators to certain classes, like NDPoint\n")
-    ndpoint.plot( 'time', 'flux' )
-
-    sys.stdout.write("\n")
     sys.stdout.write("Done\n")
+    
+
+def ts_summary( infile ):
+
+    outfile = "./output/ts_summary.md"
+
+    fh = open( outfile, "w" )
+
+    fh.write("## Model Instance Summary:\n")
+    fh.write("Input file: {}\n".format(os.path.basename(infile)))
+    fh.write("\n")
+    
+    fh.write("### Goal: Load TimeSeries instances\n")
+    fh.write("    doc = Reader( Votable(infile) )\n")
+    fh.write("    ts  = doc.find_instances(SparseCube)\n")
+    doc = Reader( Votable(infile) )
+    cubes = doc.find_instances(SparseCube)[0]  # packed 
+
+    # minor hack here.. covering for bug in cardinality propogation in packed form.
+    #  - enables us to separate the TimeSeries for each source
+    if isinstance(cubes.data, list) and isinstance(cubes.data[0], list):
+        cubes.cardinality = len(cubes.data[0])
+        ts = cubes.unroll()
+    else:
+        ts = [cubes]
+
+
+    # What kind of data product is it?
+    fh.write("\n")
+    fh.write("### Goal: Identify the whole thing as a time series\n")
+    fh.write("```\n")
+    fh.write("for instance in ts:\n")
+    fh.write("    instance.dataset.data_product_type \n")
+    fh.write("    instance.dataset.data_product_subtype \n")
+    fh.write("```\n")
+    for instance in ts:
+        fh.write("Instance: \n")
+        fh.write("  o Data Product Type: {}\n".format(instance.dataset.data_product_type))
+        fh.write("  o Data Product SubType: {}\n".format(instance.dataset.data_product_subtype))
+        fh.write("  o Target Name: {}\n".format(instance.dataset.target.name))
+
+
+    fh.write("\n")
+    fh.write("### Goal: High Level content summary\n")
+    fh.write("```\n")
+    fh.write("for instance in ts:\n")
+    fh.write("    fh.write( cube_toString( instance, data=False ) )\n")
+    fh.write("```\n")
+
+    for instance in ts:
+        fh.write( cube_toString( instance, data=False ) )
+
+    # Action: - Plot TimeSeries
+    fh.write("\n")
+    fh.write("### Goal: Plot the data\n")
+    fh.write("      - rama has added plotter decorators to certain classes, like NDPoint\n")
+    plot_cubes( ts, 'time', 'magnitude' )
+
+
+def plot_cubes( cubes, xaxis, yaxis ):
+
+    fig = plt.figure(figsize=[8.0,4.8])
+    ax = fig.add_subplot(111)
+    ax.grid(True)
+    ax.set_title("Cube Data Points")
+
+    first = True
+    for cube in cubes:
+        # Setup plot from first cube
+        if first:
+            label = xaxis
+            if hasattr( cube.data[0][xaxis].measure, 'unit'):
+                label += " ({})".format(cube.data[0][xaxis].measure.unit)
+            ax.set_xlabel(label)
+                
+            label = yaxis
+            if hasattr( cube.data[0][yaxis].measure, 'unit'):
+                label += " ({})".format(cube.data[0][yaxis].measure.unit)
+            ax.set_ylabel(label)
+    
+        first = False
+
+        tag = "source: "+cube.dataset.target.name+", band: "+cube.data[0][yaxis]._axis.measure.coord.coord_sys.frame.name
+        
+        # Gather data and add to plot
+        points = [ instance for instance in cube.data if instance is not None ]
+        xvals = [ point[xaxis].measure.value for point in points ]
+        yvals = [ point[yaxis].measure.value for point in points ]
+        if isinstance( points[0][yaxis].stat_error, Symmetrical ):
+            yerr = [ point[yaxis].stat_error.radius.value for point in points ]
+        else:
+            yerr = None
+
+        ax.errorbar( xvals, yvals, yerr=yerr, fmt=".-", ecolor='#000000', label=tag )
+
+    plt.legend()
+    plt.show()
     
     
 if __name__=="__main__":
@@ -103,10 +133,3 @@ if __name__=="__main__":
     except RuntimeError as msg:
         sys.stderr.write("ERROR: Invalid usage\n")
         sys.exit(msg)
-
-
-#sys.stdout.write("\n")
-#sys.stdout.write("Goal: Associate values and errors - Alternate\n")
-#for axis in ( doc.find_instances(MeasurementAxis) ):
-#    sys.stdout.write("    o Axis %s has error? %s\n"%(axis.measure.coord.cval.name,"no" if (axis.measure.error is None) else "yes" ) )
-

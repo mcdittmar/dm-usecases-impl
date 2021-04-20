@@ -8,12 +8,14 @@ def measLocation   = new URL("$ivoaBase/Meas/20200908/Meas-v1.0.vo-dml.xml")
 def photLocation   = new URL("$voluteBase/vo-dml-org/models/photdm-alt/PhotDM-alt.vo-dml.xml")
 def dsLocation     = new URL("$voluteBase/DatasetMetadata/vo-dml/DatasetMetadata-1.0.vo-dml.xml")
 def cubeLocation   = new URL("$voluteBase/Cube/vo-dml/Cube-1.0.vo-dml.xml")
+def mangoLocation  = new URL("file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/tmp/Mango-v1.0.vo-dml.xml")
 
 //
 // Template for annotating DM Workshop TimeSeries case file
 //
 
 dmInstance {
+    model(vodmlURL: mangoLocation)
     model(vodmlURL: cubeLocation)
     model(vodmlURL: dsLocation)
     model(vodmlURL: measLocation)
@@ -46,23 +48,39 @@ dmInstance {
 	    reference(role: "coordSys", idref: "ndupgoguduna" )
 	 }
     }
-    instance(id: "ndupgbaamxyz", type: "photdm-alt:PhotometryFilter"){
-        instance(role: "photdm-alt:PhotometryFilter.identifier", type: "ivoa:string", value: "GAIA/GAIA2.G")
-        instance(role: "photdm-alt:PhotometryFilter.spectralLocation", type: "ivoa:RealQuantity", value: "6.23e-7")
+    instance(id: "_photsys_G", type: "mango:coordinates.PhotometryCoordSys" )
+    {
+        instance(role: "frame", type: "mango:coordinates.PhotFilter")
+        {
+            instance(role: "name", type: "ivoa:string", value: "GAIA/GAIA2r.G")
+            instance(role: "zeroPointFlux", type: "ivoa:RealQuantity", value: "2.49524e-9")
+            instance(role: "magnitudeSystem", type: "ivoa:string", value: "Vega")
+            instance(role: "effectiveWavelength", type: "ivoa:RealQuantity", value: "6246.77")
+            instance(role: "unit", type: "ivoa:Unit", value: "Angstrom")
+            instance(role: "bandWidth", type: "ivoa:real", value: "4578.32")
+        }
     }
-    instance(id: "ndupgbaameit", type: "photdm-alt:PhotCal"){
-        reference(role: "photdm-alt:PhotCal.photometryFilter", idref: "ndupgbaamxyz")
-    	instance(role: "photdm-alt:PhotCal.zeroPoint", type: "photdm-alt:LinearFlux"){
-    	    instance(role: "photdm-alt:ZeroPoint.flux", type: "ivoa:RealQuantity", value: "2836.53")
-    	}
-    	instance(role: "photdm-alt:PhotCal.magnitudeSystem", type: "photdm-alt:MagnidtudeSystem"){
-    	    instance(role: "photdm-alt:MagnitudeSystem.type", type: "ivoa:string", value: "Vega")
-    	}
+    //instance(id: "ndupgbaamxyz", type: "photdm-alt:PhotometryFilter"){
+    //    instance(role: "photdm-alt:PhotometryFilter.identifier", type: "ivoa:string", value: "GAIA/GAIA2.G")
+    //    instance(role: "photdm-alt:PhotometryFilter.spectralLocation", type: "ivoa:RealQuantity", value: "6.23e-7")
+    //}
+    //instance(id: "ndupgbaameit", type: "photdm-alt:PhotCal"){
+    //    reference(role: "photdm-alt:PhotCal.photometryFilter", idref: "ndupgbaamxyz")
+    //	instance(role: "photdm-alt:PhotCal.zeroPoint", type: "photdm-alt:LinearFlux"){
+    //	    instance(role: "photdm-alt:ZeroPoint.flux", type: "ivoa:RealQuantity", value: "2836.53")
+    //	}
+    //	instance(role: "photdm-alt:PhotCal.magnitudeSystem", type: "photdm-alt:MagnidtudeSystem"){
+    //	    instance(role: "photdm-alt:MagnitudeSystem.type", type: "ivoa:string", value: "Vega")
+    //	}
+    //}
+    //instance(id: "ndupgttnahba", type: "photdm-alt:PhotCal"){
+    //    reference(role: "photdm-alt:PhotCal.photometryFilter", idref: "ndupgbaamxyz")
+    //}
+    instance(id: "_tg1", type: "ds:experiment.Target"){
+        instance(role: "name", value: "1866721434011386240")
+        reference(role: "position", idref: "ndupgogudnea" )
     }
-    instance(id: "ndupgttnahba", type: "photdm-alt:PhotCal"){
-        reference(role: "photdm-alt:PhotCal.photometryFilter", idref: "ndupgbaamxyz")
-    }
-    instance(type: "ds:experiment.ObsDataset") {
+    instance(id: "_ds1", type: "ds:experiment.ObsDataset") {
         instance(role: "dataProductType", value: "TIMESERIES")
         instance(role: "dataProductSubtype", value: "lightcurve")
         instance(role: "calibLevel", value: 1)
@@ -77,13 +95,11 @@ dmInstance {
 	        instance(role: "publisherID", value: "ivo://org.gavo.dc")
 		}
 	}
-	instance(role: "target", type: "ds:experiment.Target"){
-            instance(role: "name", value: "1866721434011386240")
-	    reference(role: "position", idref: "ndupgogudnea" )
-	}
+        reference(role: "target", idref: "_tg1")
     }
 
     instance(type: "cube:SparseCube") {
+        reference(role: "dataset", idref: "_ds1")
         composition(role: "data", ref: "_cube1_data")
     }
     
@@ -108,6 +124,7 @@ dmInstance {
                 instance(role: "measure", type: "meas:GenericMeasure") {
                     instance (role: "coord", type: "coords:PhysicalCoordinate") {
                         column(role: "cval", id: "phot", type: "ivoa:RealQuantity", data: [])
+                        reference(role: "coordSys", idref: "_photsys_G")
                     }
                 }
             }
@@ -118,6 +135,7 @@ dmInstance {
                 instance(role: "measure", type: "meas:GenericMeasure") {
                     instance(role: "coord", type: "coords:PhysicalCoordinate") {
                         column(role: "cval", id: "flux", type: "ivoa:RealQuantity", data: [])
+                        reference(role: "coordSys", idref: "_photsys_G")
                     }
                     instance(role: "error", type: "meas:Error") {
                         instance(role: "statError", type: "meas:Symmetrical") {

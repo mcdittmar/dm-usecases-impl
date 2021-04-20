@@ -1,0 +1,171 @@
+def localBase  = "file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/assets/examples"
+def voluteBase = "https://volute.g-vo.org/svn/trunk/projects/dm"
+def ivoaBase   = "https://www.ivoa.net/xml"
+
+def ivoaLocation   = new URL("$ivoaBase/VODML/IVOA-v1.vo-dml.xml")
+def coordsLocation = new URL("$ivoaBase/STC/20200908/Coords-v1.0.vo-dml.xml")
+def measLocation   = new URL("$ivoaBase/Meas/20200908/Meas-v1.0.vo-dml.xml")
+def photLocation   = new URL("$voluteBase/vo-dml-org/models/photdm-alt/PhotDM-alt.vo-dml.xml")
+def dsLocation     = new URL("$voluteBase/DatasetMetadata/vo-dml/DatasetMetadata-1.0.vo-dml.xml")
+def cubeLocation   = new URL("$voluteBase/Cube/vo-dml/Cube-1.0.vo-dml.xml")
+def mangoLocation  = new URL("file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/tmp/Mango-v1.0.vo-dml.xml")
+//
+// Template for annotating DM Workshop TimeSeries case file - ZTF sample file.
+//
+
+dmInstance {
+    model(vodmlURL: mangoLocation)
+    model(vodmlURL: cubeLocation)
+    model(vodmlURL: dsLocation)
+    model(vodmlURL: measLocation)
+    model(vodmlURL: coordsLocation)
+    model(vodmlURL: ivoaLocation)
+
+    globals(id: "_CoordinateSystems")
+    {
+        instance(id: "_timesys1", type: "coords:TimeSys")
+        {
+            pk(value: "TCB")
+            instance(role: "frame", type: "coords:TimeFrame")
+            {
+                instance(role: "timescale", type: "ivoa:string", value: "TCB")
+                instance(role: "refPosition", type: "coords:StdRefLocation")
+                {
+                    instance(role: "position", type: "ivoa:string", value: "BARYCENTER")
+                }
+            }
+        }
+        instance(id: "_spacesys1", type: "coords:SpaceSys")
+        {
+            pk(value: "ICRS")
+            instance(role: "frame", type: "coords:SpaceFrame")
+            {
+                instance(role: "spaceRefFrame", type: "ivoa:string", value: "ICRS")
+                instance(role: "equinox", type: "coords:Epoch", value: "J2015.5")
+            }
+        }
+        instance(id: "_photsys_G", type: "mango:coordinates.PhotometryCoordSys" )
+        {
+            pk(value: "G")
+            instance(role: "frame", type: "mango:coordinates.PhotFilter")
+            {
+                instance(role: "name", type: "ivoa:string", value: "GAIA/GAIA2r.G")
+                instance(role: "zeroPointFlux", type: "ivoa:RealQuantity", value: "2.49524e-9")
+                instance(role: "magnitudeSystem", type: "ivoa:string", value: "Vega")
+                instance(role: "effectiveWavelength", type: "ivoa:RealQuantity", value: "6246.77")
+                instance(role: "unit", type: "ivoa:Unit", value: "Angstrom")
+                instance(role: "bandWidth", type: "ivoa:real", value: "4578.32")
+            }
+        }
+        instance(id: "_photsys_RP", type: "mango:coordinates.PhotometryCoordSys" )
+        {
+            pk(value: "RP")
+            instance(role: "frame", type: "mango:coordinates.PhotFilter")
+            {
+                instance(role: "name", type: "ivoa:string", value: "GAIA/GAIA2r.Grp")
+                instance(role: "zeroPointFlux", type: "ivoa:RealQuantity", value: "1.29363e-9")
+                instance(role: "magnitudeSystem", type: "ivoa:string", value: "Vega")
+                instance(role: "effectiveWavelength", type: "ivoa:RealQuantity", value: "7740.87")
+                instance(role: "unit", type: "ivoa:Unit", value: "Angstrom")
+                instance(role: "bandWidth", type: "ivoa:real", value: "2943.72")
+            }
+        }
+        instance(id: "_photsys_BP", type: "mango:coordinates.PhotometryCoordSys" )
+        {
+            pk(value: "BP")
+            instance(role: "frame", type: "mango:coordinates.PhotFilter")
+            {
+                instance(role: "name", type: "ivoa:string", value: "GAIA/GAIA2r.Gbp")
+                instance(role: "zeroPointFlux", type: "ivoa:RealQuantity", value: "4.03528e-9")
+                instance(role: "magnitudeSystem", type: "ivoa:string", value: "Vega")
+                instance(role: "effectiveWavelength", type: "ivoa:RealQuantity", value: "5278.58")
+                instance(role: "unit", type: "ivoa:Unit", value: "Angstrom")
+                instance(role: "bandWidth", type: "ivoa:real", value: "2279.45")
+            }
+        }
+    }
+    globals( id: "_Targets" )
+    {
+        instance(id: "_tg1", type: "ds:experiment.Target"){
+            instance(role: "name", value: "5813181197970338560")
+        }
+    }
+    globals( id: "_Dataset" )
+    {
+        instance(id: "_ds1", type: "ds:experiment.ObsDataset") {
+            pk(value: "5813181197970338560")
+            instance(role: "dataProductType", value: "TIMESERIES")
+            instance(role: "dataProductSubtype", value: "GAIA Time Series")
+            instance(role: "calibLevel", value: 1)
+            reference(role: "target", idref: "_tg1")
+        }
+    }
+    table(id: "_PKTable")
+    {
+        instance(id: "_TimeSeries", type: "cube:SparseCube") {
+            pk(){
+                //column(id: "_pksrcid", type: "ivoa:string", data: [] )
+                column(id: "_pkband", type: "ivoa:string", data: [] )
+            }
+            composition(role: "data", ref: "_ts_data")
+            reference(role: "dataset"){
+                fk( target: "_Dataset" ){
+                    column(id: "_pksrcid", type: "ivoa:string", data: [] )
+                }
+            }
+        }
+    }
+    table(id: "Results")
+    {
+        instance(id: "_ts_data", type: "cube:NDPoint")
+        {
+            fk( target: "_TimeSeries" ){
+                //column(id: "_srcid", type: "ivoa:string", data: [] )
+                column(id: "_band", type: "ivoa:string", data: [] )
+            }
+            instance(role: "observable") {
+                instance role: "dependent", value: "False"
+        
+                instance(role: "measure", type: "meas:Time") {
+                    instance(role: "coord", type: "coords:MJD") {
+                        column(role: "date", id:"_obstime", data: [] )
+                        reference(role: "coordSys", idref: "_timesys1")
+                    }
+                }
+            }
+            instance(role: "observable") {
+                instance role: "dependent", value: "True"
+        
+                // Photometry type not supported within Cube Axis adapters.. so stick with Generic for now
+                instance(role: "measure", type: "meas:GenericMeasure") {
+                    instance (role: "coord", type: "coords:PhysicalCoordinate") {
+                        column(role: "cval", id: "_mag", type: "ivoa:RealQuantity", data: [])
+                        reference(role: "coordSys"){
+                               fk( target: "_CoordinateSystems" ){
+                               column(id: "_band", type: "ivoa:string", data: [] )
+                            }
+                        }
+                    }
+                }
+            }
+            instance(role: "observable") {
+                instance role: "dependent", value: "True"
+                instance(role: "measure", type: "meas:GenericMeasure") {
+                    instance (role: "coord", type: "coords:PhysicalCoordinate") {
+                        column(role: "cval", id: "_flux", type: "ivoa:RealQuantity", data: [])
+                        reference(role: "coordSys"){
+                            fk( target: "_CoordinateSystems" ){
+                                column(id: "_band", type: "ivoa:string", data: [] )
+                            }
+                        }
+                    }
+                    instance(role: "error", type: "meas:Error") {
+                        instance(role: "statError", type: "meas:Symmetrical") {
+                            column(role: "radius", id: "_fluxerr", type: "ivoa:RealQuantity", data: [])
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
