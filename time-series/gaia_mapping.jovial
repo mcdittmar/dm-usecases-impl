@@ -10,7 +10,7 @@ def dsLocation     = new URL("$voluteBase/DatasetMetadata/vo-dml/DatasetMetadata
 def cubeLocation   = new URL("$voluteBase/Cube/vo-dml/Cube-1.0.vo-dml.xml")
 def mangoLocation  = new URL("file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/tmp/Mango-v1.0.vo-dml.xml")
 //
-// Template for annotating DM Workshop TimeSeries case file - ZTF sample file.
+// Template for annotating DM Workshop TimeSeries case file - GAIA Multiband sample file.
 //
 
 dmInstance {
@@ -104,7 +104,7 @@ dmInstance {
     {
         instance(id: "_TimeSeries", type: "cube:SparseCube") {
             pk(){
-                //column(id: "_pksrcid", type: "ivoa:string", data: [] )
+                column(id: "_pksrcid", type: "ivoa:string", data: [] )
                 column(id: "_pkband", type: "ivoa:string", data: [] )
             }
             composition(role: "data", ref: "_ts_data")
@@ -120,7 +120,7 @@ dmInstance {
         instance(id: "_ts_data", type: "cube:NDPoint")
         {
             fk( target: "_TimeSeries" ){
-                //column(id: "_srcid", type: "ivoa:string", data: [] )
+                column(id: "_srcid", type: "ivoa:string", data: [] )
                 column(id: "_band", type: "ivoa:string", data: [] )
             }
             instance(role: "observable") {

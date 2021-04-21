@@ -35,6 +35,12 @@ run_case(){
 	echo "Run '${fixer}' fixer:"
 	cat ./output/${tmpfile} | sed s/LITERAL\ value=\"ref-/CONSTANT\ ref=\"/g > ./output/tmp.out
 	mv ./output/tmp.out ./output/${tmpfile}
+    elif [[ "${fixer}" == "gaia" ]];
+    then
+	#  + Jovial output for multiple PKFIELD is not correct
+	echo "Run '${fixer}' fixer:"
+	./fix_gaia.py ./output/${tmpfile}
+	mv ./output/${tmpfile}_fixed ./output/${tmpfile}
     fi
 
     echo "Insert annotation into VOTable"
@@ -58,7 +64,7 @@ compare_files "ztf_summary.md"
 
 echo ""
 echo "Run GAIA sample"
-run_case gaia_multiband.xml gaia_mapping.jovial gaia_multiband_annotated.vot "none"
+run_case gaia_multiband.xml gaia_mapping.jovial gaia_multiband_annotated.vot "gaia"
 mv ./output/ts_summary.md  ./output/gaia_summary.md
 compare_files "gaia_summary.md"
 

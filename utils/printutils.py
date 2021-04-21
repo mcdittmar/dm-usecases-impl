@@ -17,10 +17,10 @@ def cube_toString( cube, data=True ):
     proxy for cube:SparseCube.toString()
     """
     indent = "    "
-    result  = "{}:\n".format(get_type_name(cube))
-    result += "  o Independent Axis: {}\n".format(str(cube.data[0].independent))
-    result += "  o Dependent Axis: {}\n".format(str(cube.data[0].dependent))
-    result += "  o Length: {}\n".format(len(cube.data))
+    result  = "{}:  \n".format(get_type_name(cube))
+    result += "  o Independent Axis: {}  \n".format(str(cube.data[0].independent))
+    result += "  o Dependent Axis: {}  \n".format(str(cube.data[0].dependent))
+    result += "  o Length: {}  \n".format(len(cube.data))
 
     if data:
         axis1 = cube.data[0].independent[0]
@@ -29,7 +29,7 @@ def cube_toString( cube, data=True ):
                 result += "  o    {}".format(measure_toString(cube.data[ii][axis1]._axis.measure))
                 for axis in cube.data[0].dependent:
                     result += "      {}".format(measure_toString(cube.data[ii][axis]._axis.measure))
-                result += "\n"
+                result += "  \n"
 
     return result
 
