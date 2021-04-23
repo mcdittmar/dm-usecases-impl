@@ -48,10 +48,12 @@ def main(infile):
     pm_summary( infile, './output/pm_summary.md' )
 
     # Make Scatter plot
-    make_plot( infile, './output/pm_plot.png', True )
+    pltfile = './output/pm_plot.png'
+    make_plot( infile, pltfile )
 
     # Make Animation plot
-    make_anime( infile, './output/pm_anime.gif', True )
+    pltfile = './output/pm_anime.gif'
+    make_anime( infile, pltfile )
     
     sys.stdout.write("\n")
     sys.stdout.write("Done\n")
@@ -110,7 +112,7 @@ def pm_summary( infile, outfile ):
     fh.write( "  \n" )
 
 
-def make_plot( infile, outfile, saveit ):
+def make_plot( infile, outfile ):
 
     doc = Reader( Votable(infile) )
     pos = doc.find_instances(Position)[0]      # packed 
@@ -138,13 +140,13 @@ def make_plot( infile, outfile, saveit ):
         ax.arrow( xvals[n], yvals[n], dx[n], dy[n], color="red" )
 
     # Save or Show
-    if saveit:
+    if outfile is not None:
         plt.savefig( outfile )
     else:
         plt.show()
     
 
-def make_anime( infile, outfile, saveit ):
+def make_anime( infile, outfile ):
 
     doc = Reader( Votable(infile) )
     pos = doc.find_instances(Position)[0]      # packed 
@@ -161,7 +163,7 @@ def make_anime( infile, outfile, saveit ):
     # Animate
     ani = FuncAnimation(fig, anime_update, frames=range(0,1000,100), fargs=(coord,feature,), interval=500, blit=True)    
 
-    if saveit:
+    if outfile is not None:
         ani.save( outfile, writer='imagemagick' )
     else:
         plt.show()
