@@ -31,6 +31,7 @@ def main(infile):
 def ts_summary( infile ):
 
     outfile = "./output/ts_summary.md"
+    plotfile = "./output/ts_plot.png"
 
     fh = open( outfile, "w" )
 
@@ -121,10 +122,10 @@ def ts_summary( infile ):
     fh.write("    plt.show()\n")
     fh.write("\n")
     fh.write("```  \n")
-    plot_cubes( ts, 'time', 'magnitude' )
+    plot_cubes( ts, 'time', 'magnitude', plotfile )
 
 
-def plot_cubes( cubes, xaxis, yaxis ):
+def plot_cubes( cubes, xaxis, yaxis, plotfile ):
 
     fig = plt.figure(figsize=[8.0,4.8])
     ax = fig.add_subplot(111)
@@ -161,7 +162,11 @@ def plot_cubes( cubes, xaxis, yaxis ):
         ax.errorbar( xvals, yvals, yerr=yerr, fmt=".-", ecolor='#000000', label=tag )
 
     plt.legend()
-    plt.show()
+
+    if plotfile is not None:
+        plt.savefig( plotfile )
+    else:
+        plt.show()
     
     
 if __name__=="__main__":

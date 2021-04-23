@@ -29,17 +29,17 @@ run_case(){
     if [[ "${fixer}" == "none" ]];
     then
 	echo "No Fixer to run"
-    elif [[ "${fixer}" == "gavo" ]];
+    elif [[ "${fixer}" == "constant" ]];
     then
 	#  + Jovial does not produce CONSTANTs.. convert LITERALs
 	echo "Run '${fixer}' fixer:"
-	cat ./output/${tmpfile} | sed s/LITERAL\ value=\"ref-/CONSTANT\ ref=\"/g > ./output/tmp.out
-	mv ./output/tmp.out ./output/${tmpfile}
-    elif [[ "${fixer}" == "gaia" ]];
+	./fix_constant.sh ./output/${tmpfile}
+	mv ./output/${tmpfile}_fixed ./output/${tmpfile}
+    elif [[ "${fixer}" == "pkfield" ]];
     then
 	#  + Jovial output for multiple PKFIELD is not correct
 	echo "Run '${fixer}' fixer:"
-	./fix_gaia.py ./output/${tmpfile}
+	./fix_pkfield.py ./output/${tmpfile}
 	mv ./output/${tmpfile}_fixed ./output/${tmpfile}
     fi
 
@@ -52,20 +52,23 @@ run_case(){
 }
 
 echo "Run GAVO sample"
-run_case ts.vot ts_mapping.jovial ts_annotated.vot "gavo"
+run_case ts.vot ts_mapping.jovial ts_annotated.vot "constant"
 mv ./output/ts_summary.md  ./output/gavo_summary.md
+mv ./output/ts_plot.png  ./output/gavo_timeseries.png
 compare_files "gavo_summary.md"
 
 echo ""
 echo "Run ZTF sample"
 run_case TimeSeriesZTF.xml ztf_mapping.jovial TimeSeriesZTF_annotated.vot "none"
 mv ./output/ts_summary.md  ./output/ztf_summary.md
+mv ./output/ts_plot.png  ./output/ztf_timeseries.png
 compare_files "ztf_summary.md"
 
 echo ""
 echo "Run GAIA sample"
-run_case gaia_multiband.xml gaia_mapping.jovial gaia_multiband_annotated.vot "gaia"
+run_case gaia_multiband.xml gaia_mapping.jovial gaia_multiband_annotated.vot "pkfield"
 mv ./output/ts_summary.md  ./output/gaia_summary.md
+mv ./output/ts_plot.png  ./output/gaia_timeseries.png
 compare_files "gaia_summary.md"
 
 
