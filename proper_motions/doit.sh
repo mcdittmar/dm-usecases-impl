@@ -41,6 +41,8 @@ run_case(){
 }
 
 echo "Run Vizier sample"
-run_case vizier_gaiadr2.xml viz_mapping.jovial vizier_gaiadr2_annotated.vot "ellipse"
+run_case vizier_propermotion.xml viz_mapping.jovial vizier_propermotion_annotated.vot "none"
+mv ./output/pm_anime.gif  ./output/vizier_pm_anime.gif
+mv ./output/pm_plot.png  ./output/vizier_pm_plot.png
 mv ./output/pm_summary.md  ./output/vizier_pm_summary.md
 compare_files "vizier_pm_summary.md"

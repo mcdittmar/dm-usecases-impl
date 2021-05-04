@@ -5,7 +5,7 @@
 from rama.models.mango import Source, VOModelInstance, AssociatedMangoInstance, WebEndpoint
 from rama.models.mango import LonLatSkyPosition, Photometry, HardnessRatio, Flag
 from rama.models.cube  import SparseCube
-from rama.models.measurements import Time, GenericMeasure, Position
+from rama.models.measurements import Time, GenericMeasure, Position, ProperMotion
 from astropy.time import Time as AstroTime
 
 def get_type_name( obj ):
@@ -112,6 +112,8 @@ def measure_toString( measure ):
         result = position_toString( measure )
     elif isinstance( measure, Time ):
         result = time_toString( measure )
+    elif isinstance( measure, ProperMotion ):
+        result = propermotion_toString( measure )
     elif isinstance( measure, Photometry ):
         result = photometry_toString( measure )
     elif isinstance( measure, HardnessRatio ):
@@ -151,13 +153,33 @@ def position_toString( measure ):
         if ( frame == "GALACTIC" ):
             coordstr = posfmt_2d.format( measure.coord.l.value, measure.coord.l.unit,
                                          measure.coord.b.value, measure.coord.l.unit)
-        elif ( frame == "ICRS" ):
+        elif ( frame in ["ICRS","FK5"] ):
             coordstr = posfmt_2d.format( measure.coord.ra.value, measure.coord.ra.unit,
                                          measure.coord.dec.value, measure.coord.dec.unit)
         else:
             raise(TypeError("Unrecognized SkyCoord frame type ({})".format(measure.coord.frame.name)))
     else:
         raise(TypeError("Unsupported Positions type ({})".format(str(type(measure.coord)))))
+
+    errstr = ""
+    if measure.error is not None:
+        errstr = " " + error_toString( measure.error.stat_error )
+
+    # Add frame 
+    result = coordstr + errstr + " [{}]".format(frame)
+
+    return result
+
+def propermotion_toString( measure ):
+    """
+    proxy for meas:ProperMotion.toString()
+    """
+    pmfmt = "Proper Motion: ( {:10.6f} [{}], {:10.6f} [{}] )"
+    frame = ""
+    
+    frame = measure.lon.coord_sys.frame.space_ref_frame
+    coordstr = pmfmt.format( measure.lon.cval.value, measure.lon.cval.unit,
+                             measure.lat.cval.value, measure.lat.cval.unit )
 
     errstr = ""
     if measure.error is not None:
