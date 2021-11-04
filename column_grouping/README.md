@@ -12,6 +12,9 @@ Focus case for Mango model Associated Parameter element.
 * Generate and validate annotation block for raw sample file
 * Fix any annotation issues (Jovial bugs)
 * Insert annotation into sample file - becomes input to implementation.
+* Results are written to 'temp' directory
+    * If satisfied, install them to 'data' directory
+    
 ```
 ./doit.sh annotate
 ```
@@ -22,10 +25,9 @@ We perform a simple display of the interpreted instances.
 At this point, it is merely an annotation exercise
 
 * Python Notebook executes case
+* Results are written to 'temp' directory
+    * If satisfied, install them to 'results' directory
+
 ```
 ./doit.sh execute
 ```
-
-## Results
-Results are stored in markdown file in the results directory.
-
