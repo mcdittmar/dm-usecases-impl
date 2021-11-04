@@ -12,6 +12,8 @@
 baselines
 input
 output
+__pycache__
+.ipynb_checkpoints
 #
 # OS
 .DS_Store
