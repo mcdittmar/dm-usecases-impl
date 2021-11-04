@@ -23,7 +23,7 @@ At this point, it is merely an annotation exercise
 
 * Python Notebook executes case
 ```
-jupyter notebook 
+./doit.sh execute
 ```
 
 ## Results
