@@ -1,37 +1,20 @@
 #!/bin/bash
 #
-# ----------------------------------------------------------------------
-# Fix raw file:
-#   + FIELD element(s) referenced in annotation need ID added
-#----------------------------------------------------------------------
-#
-rawfile="simbad_idonly.xml"
-annfile="simbad_idonly_annotated.vot"
-tmpfile="vodml_annotation.vot"
+# include utility methods
+. ../utils/utils.sh
 
-compare_files(){
-    fname=$1
-    diff -q ./output/${fname} ./baselines/${fname}
-}    
+# ================================================================================
+# MAIN
 
-echo "Generate Annotation and validate:"
-../utils/annotate.sh -t id_mapping.jovial -o ./output/${tmpfile}
-
-echo "Insert Annotation into VOTable:"
-../utils/insert_annotation.py ./input/${rawfile} ./output/${tmpfile} ./output/${annfile}
-
-compare_files ${annfile}
-
-echo "Run the rama implementation script"
-# NOTE: produces UserWarning about dropping mask for several Quantities = OK
-./id_implement.py ./output/${annfile}
-
-echo "Compare results"
-compare_files "id_results.md"
-rc=$?
-if [[ ${rc} -eq 0 ]];
+action=$1
+if [[ ${action} == "annotate" ]];
 then
-    echo "PASS"
-fi
+    annotate_files ./data/simbad_idonly.xml id_mapping.jovial simbad_idonly.avot "none"
 
-exit ${rc}
+elif [[ ${action} == "execute" ]];
+then
+    run_notebook match_ids.ipynb match_ids_results.md
+else
+    echo "Unrecognized option"
+    exit 1
+fi
