@@ -46,8 +46,7 @@ The implementations:
 * Load the annotated data
 * Find the relevant Instances
 * Determine and display the total number of Sources in the file
-* Determine and display the number of unique Sources in the file.
-
+* Scan Sources for records matching provided identifiers, report matches.
 
 Python Notebooks execute case
 * Results are written to 'temp' directory
