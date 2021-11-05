@@ -1,14 +1,15 @@
-def localBase  = "file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/assets/examples"
+def localBase  = "file:/Users/sao/Documents/IVOA/GitHub/dm-usecases-impl/resources"
 def voluteBase = "https://volute.g-vo.org/svn/trunk/projects/dm"
 def ivoaBase   = "https://www.ivoa.net/xml"
 
 def ivoaLocation   = new URL("$ivoaBase/VODML/IVOA-v1.vo-dml.xml")
-def coordsLocation = new URL("$ivoaBase/STC/20200908/Coords-v1.0.vo-dml.xml")
-def measLocation   = new URL("$ivoaBase/Meas/20200908/Meas-v1.0.vo-dml.xml")
+def coordsLocation = new URL("$localBase/Coords-v1.0.20210924.vo-dml.xml")
+def measLocation   = new URL("$localBase/Meas-v1.0.20211019.vo-dml.xml")
 def photLocation   = new URL("$voluteBase/vo-dml-org/models/photdm-alt/PhotDM-alt.vo-dml.xml")
 def dsLocation     = new URL("$voluteBase/DatasetMetadata/vo-dml/DatasetMetadata-1.0.vo-dml.xml")
-def cubeLocation   = new URL("$voluteBase/Cube/vo-dml/Cube-1.0.vo-dml.xml")
-def mangoLocation  = new URL("file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/tmp/Mango-v1.0.vo-dml.xml")
+//def cubeLocation   = new URL("$voluteBase/Cube/vo-dml/Cube-1.0.vo-dml.xml")
+def cubeLocation   = new URL("$localBase/Cube-1.0.vo-dml.xml")
+def mangoLocation  = new URL("$localBase/Mango-v1.0.vo-dml.xml")
 
 //
 // Template for annotating DM Workshop Multi-Model case on Chandra Source Catalog (CSC) file 
@@ -184,9 +185,9 @@ dmInstance {
                 }
                 instance(role: "ucd", type: "ivoa:string", value: "pos")
                 instance(role: "measure", type: "meas:Position"){
-                    instance(role: "coord", type: "coords:Point"){
-                        column(role: "axis1", id: "mcol9", type: "ivoa:RealQuantity", data: [] )
-                        column(role: "axis2", id: "mcol10", type: "ivoa:RealQuantity", data: [] )
+                    instance(role: "coord", type: "coords:LonLatPoint"){
+                        column(role: "lon", id: "mcol9", type: "ivoa:RealQuantity", data: [] )
+                        column(role: "lat", id: "mcol10", type: "ivoa:RealQuantity", data: [] )
                         reference(role: "coordSys", type: "mango:coordinates.LonLatCoordSys", idref: "_coosys" )
                     }
                 }
