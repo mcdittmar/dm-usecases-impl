@@ -3,11 +3,11 @@ def voluteBase = "https://volute.g-vo.org/svn/trunk/projects/dm"
 def ivoaBase   = "https://www.ivoa.net/xml"
 
 def ivoaLocation   = new URL("$ivoaBase/VODML/IVOA-v1.vo-dml.xml")
-def coordsLocation = new URL("$ivoaBase/STC/20200908/Coords-v1.0.vo-dml.xml")
-def measLocation   = new URL("$ivoaBase/Meas/20200908/Meas-v1.0.vo-dml.xml")
+def coordsLocation = new URL("$localBase/Coords-v1.0.20210924.vo-dml.xml")
+def measLocation   = new URL("$localBase/Meas-v1.0.20211019.vo-dml.xml")
 def photLocation   = new URL("$voluteBase/vo-dml-org/models/photdm-alt/PhotDM-alt.vo-dml.xml")
 def dsLocation     = new URL("$voluteBase/DatasetMetadata/vo-dml/DatasetMetadata-1.0.vo-dml.xml")
-def cubeLocation   = new URL("$voluteBase/Cube/vo-dml/Cube-1.0.vo-dml.xml")
+def cubeLocation   = new URL("$localBase/Cube-1.0.vo-dml.xml")
 def mangoLocation  = new URL("$localBase/Mango-v1.0.vo-dml.xml")
 
 //
@@ -15,10 +15,10 @@ def mangoLocation  = new URL("$localBase/Mango-v1.0.vo-dml.xml")
 //
 // Column mapping                  colname (file has no IDs)
 //    Source.identifier         => Source
-//    LonLatSkyPosition
-//      * coord
-//          longitude           => RA_ICRS
-//          latitude            => DEC_ICRS
+//    Position
+//      * coord (LonLatPoint)
+//          long                => RA_ICRS
+//          lat                 => DEC_ICRS
 //     	* error (Box)
 //          radius              => e_RA_ICRS
 //	    radius              => e_DEC_ICRS
@@ -127,12 +127,12 @@ dmInstance {
 		instance(role: "semantic", type: "mango:VocabularyTerm"){
 		    instance(role: "label", type: "ivoa:string", value: "position" )
 		}
-		instance(role: "ucd", type: "ivoa:string", value: "pos")
-	        instance(role: "measure", type: "mango:measures.LonLatSkyPosition"){
-	            instance(role: "coord", type: "mango:coordinates.LonLatPoint"){
-	                column(role: "longitude", id: "_pos_ra", type: "ivoa:RealQuantity", data: [] )
-	        	column(role: "latitude", id: "_pos_dec", type: "ivoa:RealQuantity", data: [] )
-	        	reference(role: "coordSys", type: "mango:coordinates.LonLatCoordSys", idref: "_coosys" )
+		//instance(role: "ucd", type: "ivoa:string", value: "pos")
+	        instance(role: "measure", type: "meas:Position"){
+	            instance(role: "coord", type: "coords:LonLatPoint"){
+	                column(role: "lon", id: "_pos_ra", type: "ivoa:RealQuantity", data: [] )
+	        	column(role: "lat", id: "_pos_dec", type: "ivoa:RealQuantity", data: [] )
+	        	reference(role: "coordSys", idref: "_coosys" )
 		    }
 		    instance(role: "meas:Measure.error", type: "meas:Error"){
 		        instance( role: "statError", type: "meas:Ellipse"){
@@ -148,7 +148,7 @@ dmInstance {
 		instance(role: "semantic", type: "mango:VocabularyTerm"){
 		    instance(role: "label", type: "ivoa:string", value: "flux" )
 		}
-		instance(role: "ucd", type: "ivoa:string", value: "phot.flux")
+		//instance(role: "ucd", type: "ivoa:string", value: "phot.flux")
 	        instance(role: "measure", type: "mango:measures.Photometry"){
 	            instance(role: "coord", type: "mango:coordinates.PhotometryCoord"){
 	                column(role: "luminosity", id: "_flux_g", type: "ivoa:RealQuantity", data: [] )
@@ -166,7 +166,7 @@ dmInstance {
 		instance(role: "semantic", type: "mango:VocabularyTerm"){
 		    instance(role: "label", type: "ivoa:string", value: "flux" )
 		}
-		instance(role: "ucd", type: "ivoa:string", value: "phot.flux")
+		//instance(role: "ucd", type: "ivoa:string", value: "phot.flux")
 	        instance(role: "measure", type: "mango:measures.Photometry"){
 	            instance(role: "coord", type: "mango:coordinates.PhotometryCoord"){
 	                column(role: "luminosity", id: "_flux_bp", type: "ivoa:RealQuantity", data: [] )
@@ -184,7 +184,7 @@ dmInstance {
 		instance(role: "semantic", type: "mango:VocabularyTerm"){
 		    instance(role: "label", type: "ivoa:string", value: "flux" )
 		}
-		instance(role: "ucd", type: "ivoa:string", value: "phot.flux")
+		//instance(role: "ucd", type: "ivoa:string", value: "phot.flux")
 	        instance(role: "measure", type: "mango:measures.Photometry"){
 	            instance(role: "coord", type: "mango:coordinates.PhotometryCoord"){
 	                column(role: "luminosity", id: "_flux_rp", type: "ivoa:RealQuantity", data: [] )
@@ -202,7 +202,7 @@ dmInstance {
 		instance(role: "semantic", type: "mango:VocabularyTerm"){
 		    instance(role: "label", type: "ivoa:string", value: "hardness_ratio" )
 		}
-		instance(role: "ucd", type: "ivoa:string", value: "phot.color")
+		//instance(role: "ucd", type: "ivoa:string", value: "phot.color")
 	        instance(role: "measure", type: "mango:measures.HardnessRatio"){
 	            instance(role: "coord", type: "mango:coordinates.HardnessRatioCoord"){
 	                column(role: "hardnessRatio", id: "_color", type: "ivoa:real", data: [] )

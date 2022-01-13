@@ -7,11 +7,11 @@
     </MODEL>
     <MODEL>
       <NAME>meas</NAME>
-      <URL>https://www.ivoa.net/xml/Meas/20200908/Meas-v1.0.vo-dml.xml</URL>
+      <URL>file:/Users/sao/Documents/IVOA/GitHub/dm-usecases-impl/resources/Meas-v1.0.20211019.vo-dml.xml</URL>
     </MODEL>
     <MODEL>
       <NAME>coords</NAME>
-      <URL>https://www.ivoa.net/xml/STC/20200908/Coords-v1.0.vo-dml.xml</URL>
+      <URL>file:/Users/sao/Documents/IVOA/GitHub/dm-usecases-impl/resources/Coords-v1.0.20210924.vo-dml.xml</URL>
     </MODEL>
     <MODEL>
       <NAME>ivoa</NAME>
@@ -178,17 +178,14 @@
                 </ATTRIBUTE>
               </INSTANCE>
             </ATTRIBUTE>
-            <ATTRIBUTE dmrole="mango:Parameter.ucd">
-              <LITERAL value="pos" dmtype="ivoa:string"/>
-            </ATTRIBUTE>
             <COMPOSITION dmrole="mango:Parameter.measure">
-              <INSTANCE dmtype="mango:measures.LonLatSkyPosition">
-                <ATTRIBUTE dmrole="mango:measures.LonLatSkyPosition.coord">
-                  <INSTANCE dmtype="mango:coordinates.LonLatPoint">
-                    <ATTRIBUTE dmrole="mango:coordinates.LonLatPoint.longitude">
+              <INSTANCE dmtype="meas:Position">
+                <ATTRIBUTE dmrole="meas:Position.coord">
+                  <INSTANCE dmtype="coords:LonLatPoint">
+                    <ATTRIBUTE dmrole="coords:LonLatPoint.lon">
                       <COLUMN dmtype="ivoa:RealQuantity" ref="col9"/>
                     </ATTRIBUTE>
-                    <ATTRIBUTE dmrole="mango:coordinates.LonLatPoint.latitude">
+                    <ATTRIBUTE dmrole="coords:LonLatPoint.lat">
                       <COLUMN dmtype="ivoa:RealQuantity" ref="col10"/>
                     </ATTRIBUTE>
                     <REFERENCE dmrole="coords:Coordinate.coordSys">
@@ -206,9 +203,6 @@
                   <LITERAL value="flux" dmtype="ivoa:string"/>
                 </ATTRIBUTE>
               </INSTANCE>
-            </ATTRIBUTE>
-            <ATTRIBUTE dmrole="mango:Parameter.ucd">
-              <LITERAL value="phot.flux" dmtype="ivoa:string"/>
             </ATTRIBUTE>
             <COMPOSITION dmrole="mango:Parameter.measure">
               <INSTANCE dmtype="mango:measures.Photometry">
@@ -232,9 +226,6 @@
                   <LITERAL value="hardness_ratio" dmtype="ivoa:string"/>
                 </ATTRIBUTE>
               </INSTANCE>
-            </ATTRIBUTE>
-            <ATTRIBUTE dmrole="mango:Parameter.ucd">
-              <LITERAL value="phot.color" dmtype="ivoa:string"/>
             </ATTRIBUTE>
             <COMPOSITION dmrole="mango:Parameter.measure">
               <INSTANCE dmtype="mango:measures.HardnessRatio">
@@ -273,9 +264,6 @@
                 </ATTRIBUTE>
               </INSTANCE>
             </ATTRIBUTE>
-            <ATTRIBUTE dmrole="mango:Parameter.ucd">
-              <LITERAL value="phot.color" dmtype="ivoa:string"/>
-            </ATTRIBUTE>
             <COMPOSITION dmrole="mango:Parameter.measure">
               <INSTANCE dmtype="mango:measures.HardnessRatio">
                 <ATTRIBUTE dmrole="mango:measures.HardnessRatio.coord">
@@ -313,9 +301,6 @@
                 </ATTRIBUTE>
               </INSTANCE>
             </ATTRIBUTE>
-            <ATTRIBUTE dmrole="mango:Parameter.ucd">
-              <LITERAL value="phot.color" dmtype="ivoa:string"/>
-            </ATTRIBUTE>
             <COMPOSITION dmrole="mango:Parameter.measure">
               <INSTANCE dmtype="mango:measures.HardnessRatio">
                 <ATTRIBUTE dmrole="mango:measures.HardnessRatio.coord">
@@ -352,9 +337,6 @@
                   <LITERAL value="obs.start" dmtype="ivoa:string"/>
                 </ATTRIBUTE>
               </INSTANCE>
-            </ATTRIBUTE>
-            <ATTRIBUTE dmrole="mango:Parameter.ucd">
-              <LITERAL value="time" dmtype="ivoa:string"/>
             </ATTRIBUTE>
             <COMPOSITION dmrole="mango:Parameter.measure">
               <INSTANCE dmtype="meas:Time">

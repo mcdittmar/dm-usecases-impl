@@ -252,14 +252,18 @@ def generic_toString( measure ):
     """
     proxy for meas:GenericMeasure.toString()
     """
-    genericfmt = "GenericMeasure: ( {:10.6} [{}] )"
-    genericfmt_unitless = "GenericMeasure: ( {:10.6e} )"
+    genericfmt = "GenericMeasure: ( {} {:10.6} [{}] )"
+    genericfmt_unitless = "GenericMeasure: ( {} {:10.6e} )"
+
+    ucdstr = ""
+    if ( hasattr( measure, "ucd" ) ):
+        ucdstr = "ucd={}".format(measure.ucd)
 
     if ( hasattr( measure.coord, "cval" ) ):
         if ( hasattr( measure.coord.cval, "value" ) ): #Quantity
-            coordstr = genericfmt.format( measure.coord.cval.value,  measure.coord.cval.unit )
+            coordstr = genericfmt.format( ucdstr, measure.coord.cval.value,  measure.coord.cval.unit )
         else:
-            coordstr = genericfmt_unitless.format( measure.coord.cval )
+            coordstr = genericfmt_unitless.format( ucdstr, measure.coord.cval )
     else:
         raise(TypeError("Unsupported GenericMeasure type ({})".format(str(type(measure.coord)))))
 

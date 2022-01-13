@@ -89,6 +89,8 @@ print("o Number of unique Sources: %d"%( len(set(catalog.identifier)) ) )
 By default, the rama package generates compact instances.. with array Values rather than multiple Instances.
 We 'unroll' the instance to access individual Source instances.
 
+Note: The Mango model Parameter contains a 'ucd' attribute which essentially identifies the type of the contained Measure.  This is the job of the measure itself, either by the specialized type (eg: Position), or in the case of GenericMeasure through its 'ucd' attribute (added post RFC2
+
 
 ```python
 srcno = 2
@@ -104,15 +106,15 @@ for prop in ( source.parameter_dock ):
 
     o Source number: 3
     o Identifier: 117544667186560
-    o Property: semantic=position, ucd=pos
+    o Property: semantic=position, ucd=None
         o Position: (  45.319941 [deg],   0.916037 [deg] ) ellipse(major:1.988e-01, minor:1.955e-01, angle:   nan) [ICRS]
-    o Property: semantic=flux, ucd=phot.flux
+    o Property: semantic=flux, ucd=None
         o Photometry: (7.209e+02 [e-/s]) +/- 2.007e+00 [band=GAIA/GAIA2r.G]
-    o Property: semantic=flux, ucd=phot.flux
+    o Property: semantic=flux, ucd=None
         o Photometry: (2.501e+02 [e-/s]) +/- 1.211e+01 [band=GAIA/GAIA2r.Gbp]
-    o Property: semantic=flux, ucd=phot.flux
+    o Property: semantic=flux, ucd=None
         o Photometry: (7.589e+02 [e-/s]) +/- 9.894e+00 [band=GAIA/GAIA2r.Grp]
-    o Property: semantic=hardness_ratio, ucd=phot.color
+    o Property: semantic=hardness_ratio, ucd=None
         o HardnessRatio:  1.795 [band_low: GAIA/GAIA2r.Gbp, band_high: GAIA/GAIA2r.Grp]
     o Property: semantic=quality, ucd=meta.code.qual
         o Flag: 0 [Not duplicated]
