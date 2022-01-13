@@ -5,7 +5,7 @@
         * VOTable with one table
             * Results - Subset of 4XMM dr9 detection catalogs with several (357) properties.
             * We will annotate a subset of these properties
-                * Position (ICRS) with Ellipse error		
+                * Position (ICRS) with Ellipse error
                 * Photometry (flux) with Symmetrical Error; per band
                 * HardnessRatio with Symmetrical Error; x4
                 * Observation Duration
@@ -25,7 +25,7 @@
     * vizier_gaiadr2.xml.orig
         * VOTable with one table
             * Results - GAIA DR2 data with several (32) properties.
-	    * We will annotate a subset of these properties
+            * We will annotate a subset of these properties
                 * Position (ICRS) with Box Error
                 * Photometry (flux); 3 bands
                 * HardnessRatio; x1
@@ -43,7 +43,7 @@
         * VOTable with one table
             * Contains 1000 detections of 326 unique sources.
             * Results - Chandra Source Catalog 2.0 data with several (25) properties.
-	    * We will annotate a subset of these properties
+            * We will annotate a subset of these properties
                 * Position (Galactic)
                 * Photometry (flux); 1 band
                 * HardnessRatio with Bounds Error; x3
