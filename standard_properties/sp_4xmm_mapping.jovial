@@ -1,4 +1,4 @@
-def localBase  = "file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/assets/examples"
+def localBase  = "file:/Users/sao/Documents/IVOA/GitHub/dm-usecases-impl/resources"
 def voluteBase = "https://volute.g-vo.org/svn/trunk/projects/dm"
 def ivoaBase   = "https://www.ivoa.net/xml"
 
@@ -8,7 +8,7 @@ def measLocation   = new URL("$ivoaBase/Meas/20200908/Meas-v1.0.vo-dml.xml")
 def photLocation   = new URL("$voluteBase/vo-dml-org/models/photdm-alt/PhotDM-alt.vo-dml.xml")
 def dsLocation     = new URL("$voluteBase/DatasetMetadata/vo-dml/DatasetMetadata-1.0.vo-dml.xml")
 def cubeLocation   = new URL("$voluteBase/Cube/vo-dml/Cube-1.0.vo-dml.xml")
-def mangoLocation  = new URL("file:/Users/sao/Documents/IVOA/GitHub/ivoa-dm-examples/tmp/Mango-v1.0.vo-dml.xml")
+def mangoLocation  = new URL("$localBase/Mango-v1.0.vo-dml.xml")
 
 //
 // Template for annotating DM Workshop Standard Properties case 4XMM file 

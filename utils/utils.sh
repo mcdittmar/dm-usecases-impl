@@ -47,7 +47,9 @@ annotate_files(){
 	 mv ./temp/${tmpfile}_fixed ./temp/${tmpfile}
     elif [[ "${fixer}" == "ellipse" ]];
     then
-	 ./fix_ellipse.py ./temp/${tmpfile}
+	 echo "Run 'ellipse' fixer:"
+	 ../utils/fix_ellipse.py ./temp/${tmpfile}
+	 mv ./temp/${tmpfile}_fixed ./temp/${tmpfile}
     fi
     
     echo "Insert annotation into VOTable"
@@ -65,7 +67,7 @@ run_notebook(){
     mkdir -p ./temp
 
     echo "Run the notebook:"
-    jupyter nbconvert ${infile} --to markdown --output ./temp/${outfile}
+    jupyter nbconvert ${infile} --execute --to markdown --output ./temp/${outfile}
 
     # Compare file against current
     compare_files ./results/${outfile} ./temp/${outfile}
