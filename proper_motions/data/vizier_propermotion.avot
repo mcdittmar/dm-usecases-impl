@@ -76,6 +76,9 @@
             </REFERENCE>
           </INSTANCE>
         </ATTRIBUTE>
+        <ATTRIBUTE dmrole="meas:ProperMotion.cosLat_applied">
+          <LITERAL value="false" dmtype="ivoa:boolean"/>
+        </ATTRIBUTE>
         <COMPOSITION dmrole="meas:Measure.error">
           <INSTANCE dmtype="meas:Error">
             <ATTRIBUTE dmrole="meas:Error.statError">

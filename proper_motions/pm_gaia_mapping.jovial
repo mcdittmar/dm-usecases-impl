@@ -59,6 +59,8 @@ dmInstance {
                     column(role: "semiAxis", id: "_e_pm_min", type: "ivoa:RealQuantity", data: [] )
                 }
             }
+            instance(role: "cosLat_applied", type: "ivoa:boolean", value: "false" )
+	    
         }
     }
 }
