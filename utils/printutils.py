@@ -177,9 +177,14 @@ def propermotion_toString( measure ):
     pmfmt = "Proper Motion: ( {:10.6f} [{}], {:10.6f} [{}] )"
     frame = ""
     
-    frame = measure.lon.coord_sys.frame.space_ref_frame
-    coordstr = pmfmt.format( measure.lon.cval.value, measure.lon.cval.unit,
-                             measure.lat.cval.value, measure.lat.cval.unit )
+    if ( hasattr( measure, "coord" ) ): # post RCF2 - uses LonLatPoint coord.
+        frame = measure.coord.coord_sys.frame.space_ref_frame
+        coordstr = pmfmt.format( measure.coord.lon.value, measure.coord.lon.unit,
+                                 measure.coord.lat.value, measure.coord.lat.unit )
+    else:
+        frame = measure.lon.coord_sys.frame.space_ref_frame
+        coordstr = pmfmt.format( measure.lon.cval.value, measure.lon.cval.unit,
+                                 measure.lat.cval.value, measure.lat.cval.unit )
 
     errstr = ""
     if measure.error is not None:
