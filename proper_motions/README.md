@@ -40,8 +40,6 @@ The primary objective is:
 ```
 
 ## Case Thread
-There is no specified 'action' for this case.
-For this case, we use the same script to access the various Properties of each file.
 
 Note: on conversion to AstroPy SkyCoord
 * Positions which auto-convert to SkyCoords have a different interface than those which do not.

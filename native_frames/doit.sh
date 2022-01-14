@@ -1,37 +1,25 @@
 #!/bin/bash
 #
-# ----------------------------------------------------------------------
-# Fix raw file:
-#  + FIELDs referenced in annotation need IDs added
-# ----------------------------------------------------------------------
-#
-rawfile="vizier_csc2_gal.xml"
-annfile="csc2_annotated.vot"
-tmpfile="vodml_annotation.vot"
+# include utility methods
+. ../utils/utils.sh
 
-compare_files(){
-    fname=$1
-    diff -q ./output/${fname} ./baselines/${fname}
-}    
+# ================================================================================
+# MAIN
 
-echo "Generate Annotation and validate:"
-../utils/annotate.sh -t nf_mapping.jovial -o ./output/${tmpfile}
-
-echo "Insert Annotation into VOTable:"
-../utils/insert_annotation.py ./input/${rawfile} ./output/${tmpfile} ./output/${annfile}
-compare_files ${annfile}
-
-echo "Run the rama implementation script"
-#  + will pop-up a plot, save if needed
-# NOTE: produces UserWarning about dropping mask for several Quantities = OK
-./nf_implement.py ./output/${annfile}
-
-echo "Compare results"
-compare_files "nf_results.md"
-rc=$?
-if [[ ${rc} -eq 0 ]];
+action=$1
+if [[ ${action} == "annotate" ]];
 then
-    echo "PASS"
-fi
+    annotate_files ./data/vizier_csc2_gal.xml nf_csc_mapping.jovial vizier_csc2_gal.avot "none"
 
-exit ${rc}
+elif [[ ${action} == "execute" ]];
+then
+    run_notebook native_frames.ipynb csc_summary.md
+
+elif [[ ${action} == "clean" ]];
+then
+    rm -rf ./temp
+    
+else
+    echo "Unrecognized option"
+    exit 1
+fi

@@ -1,0 +1,65 @@
+def localBase  = "file:/Users/sao/Documents/IVOA/GitHub/dm-usecases-impl/resources"
+def voluteBase = "https://volute.g-vo.org/svn/trunk/projects/dm"
+def ivoaBase   = "https://www.ivoa.net/xml"
+
+def ivoaLocation   = new URL("$ivoaBase/VODML/IVOA-v1.vo-dml.xml")
+def coordsLocation = new URL("$localBase/Coords-v1.0.20210924.vo-dml.xml")
+def measLocation   = new URL("$localBase/Meas-v1.0.20211019.vo-dml.xml")
+def photLocation   = new URL("$voluteBase/vo-dml-org/models/photdm-alt/PhotDM-alt.vo-dml.xml")
+def dsLocation     = new URL("$voluteBase/DatasetMetadata/vo-dml/DatasetMetadata-1.0.vo-dml.xml")
+def cubeLocation   = new URL("$localBase/Cube-1.0.vo-dml.xml")
+def mangoLocation  = new URL("$localBase/Mango-v1.0.vo-dml.xml")
+
+//
+// Template for annotating DM Workshop Native-Frames case file
+//
+
+dmInstance {
+    model(vodmlURL: mangoLocation)
+    model(vodmlURL: measLocation)
+    model(vodmlURL: coordsLocation)
+    model(vodmlURL: ivoaLocation)
+
+    instance(id: "_coosys1", type: "coords:SpaceSys")
+    {
+        instance(role: "frame", type: "coords:SpaceFrame")
+        {
+            instance(role: "spaceRefFrame", type: "ivoa:string", value: "ICRS")
+        }
+    }
+    instance(id: "_coosys2", type: "coords:SpaceSys")
+    {
+        instance(role: "frame", type: "coords:SpaceFrame")
+        {
+            instance(role: "spaceRefFrame", type: "ivoa:string", value: "GALACTIC")
+            instance(role: "equinox", type: "coords:Epoch", value: "J2000")
+        }
+    }
+    table(id: "Results")
+    {
+	instance(type: "mango:Source")
+	{
+	    column(role: "identifier", id: "_col1", type: "ivoa:string",data: [] )
+	    instance(role: "parameterDock", type: "mango:Parameter"){
+		instance(role: "ucd", type: "ivoa:string", value: "pos.eq")
+            	instance(role: "measure", type: "meas:Position"){
+	            instance(role: "coord", type: "coords:LonLatPoint"){
+	                column(role: "lon", id: "_col2", type: "ivoa:RealQuantity", data: [] )
+	    	        column(role: "lat", id: "_col3", type: "ivoa:RealQuantity", data: [] )
+	    	        reference(role: "coordSys", idref: "_coosys1" )
+			}
+		}
+	    }
+	    instance(role: "parameterDock", type: "mango:Parameter"){
+		instance(role: "ucd", type: "ivoa:string", value: "pos.galactic")
+	        instance(role: "measure", type: "meas:Position"){
+	            instance(role: "coord", type: "coords:LonLatPoint"){
+	                column(role: "lon", id: "_col5", type: "ivoa:RealQuantity", data: [] )
+	        	column(role: "lat", id: "_col4", type: "ivoa:RealQuantity", data: [] )
+	        	reference(role: "coordSys", idref: "_coosys2" )
+	            }
+	        }
+	    }
+        }
+    }
+}
