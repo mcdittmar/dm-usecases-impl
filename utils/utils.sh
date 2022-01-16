@@ -50,6 +50,16 @@ annotate_files(){
 	 echo "Run 'ellipse' fixer:"
 	 ../utils/fix_ellipse.py ./temp/${tmpfile}
 	 mv ./temp/${tmpfile}_fixed ./temp/${tmpfile}
+    elif [[ "${fixer}" == "constant" ]];
+    then
+	 echo "Run 'constant' fixer:"
+	 ../utils/fix_constant.sh ./temp/${tmpfile}
+	 mv ./temp/${tmpfile}_fixed ./temp/${tmpfile}
+    elif [[ "${fixer}" == "pkfield" ]];
+    then
+	 echo "Run 'pkfield' fixer:"
+	 ../utils/fix_pkfield.py ./temp/${tmpfile}
+	 mv ./temp/${tmpfile}_fixed ./temp/${tmpfile}
     fi
     
     echo "Insert annotation into VOTable"

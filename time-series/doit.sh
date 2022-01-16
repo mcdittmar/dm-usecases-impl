@@ -1,74 +1,30 @@
 #!/bin/bash
 #
-compare_files(){
-    fname=$1
+# include utility methods
+. ../utils/utils.sh
 
-    echo "Compare Files"
-    diff -q ./output/${fname} ./baselines/${fname}
+# ================================================================================
+# MAIN
 
-    rc=$?
-    if [[ ${rc} -eq 0 ]];
-    then
-	echo "PASS"
-    fi
-}    
+action=$1
+if [[ ${action} == "annotate" ]];
+then
+   # NOTE: ZTF and GAIA fail validation - SparseCube instance
+   #       Jovial writes REFERENCE then COMPOSITION, schema expects COMPOSITION then REFERENCE
 
-run_case(){
-    infile=$1
-    mapping=$2
-    outfile=$3
-    fixer=$4
-    tmpfile="vodml_annotation.vot"
+    annotate_files ./data/ts.vot ts_gavo_mapping.jovial ts.avot "constant"
+    annotate_files ./data/TimeSeriesZTF.xml ts_ztf_mapping.jovial TimeSeriesZTF.avot "none"
+    annotate_files ./data/gaia_multiband.xml ts_gaia_mapping.jovial gaia_multiband.avot "pkfield"
 
-    echo "Generate Annotation and validate:"
-    # NOTE: ZTF and GAIA fail validation - SparseCube instance
-    #         * Jovial writes REFERENCE then COMPOSITION, schema expects COMPOSITION then REFERENCE
-    ../utils/annotate.sh -t ${mapping} -o ./output/${tmpfile}
+elif [[ ${action} == "execute" ]];
+then
+    run_notebook time_series.ipynb ts_summary.md
+
+elif [[ ${action} == "clean" ]];
+then
+    rm -rf ./temp
     
-    # FIX Annotation
-    if [[ "${fixer}" == "none" ]];
-    then
-	echo "No Fixer to run"
-    elif [[ "${fixer}" == "constant" ]];
-    then
-	#  + Jovial does not produce CONSTANTs.. convert LITERALs
-	echo "Run '${fixer}' fixer:"
-	./fix_constant.sh ./output/${tmpfile}
-	mv ./output/${tmpfile}_fixed ./output/${tmpfile}
-    elif [[ "${fixer}" == "pkfield" ]];
-    then
-	#  + Jovial output for multiple PKFIELD is not correct
-	echo "Run '${fixer}' fixer:"
-	./fix_pkfield.py ./output/${tmpfile}
-	mv ./output/${tmpfile}_fixed ./output/${tmpfile}
-    fi
-
-    echo "Insert annotation into VOTable"
-    ../utils/insert_annotation.py ./input/${infile} ./output/${tmpfile} ./output/${outfile}
-    compare_files ${outfile} 
-    
-    echo "Run the rama implementation script"
-    ./ts_implement.py ./output/${outfile}
-}
-
-echo "Run GAVO sample"
-run_case ts.vot ts_mapping.jovial ts_annotated.vot "constant"
-mv ./output/ts_summary.md  ./output/gavo_summary.md
-mv ./output/ts_plot.png  ./output/gavo_timeseries.png
-compare_files "gavo_summary.md"
-
-echo ""
-echo "Run ZTF sample"
-run_case TimeSeriesZTF.xml ztf_mapping.jovial TimeSeriesZTF_annotated.vot "none"
-mv ./output/ts_summary.md  ./output/ztf_summary.md
-mv ./output/ts_plot.png  ./output/ztf_timeseries.png
-compare_files "ztf_summary.md"
-
-echo ""
-echo "Run GAIA sample"
-run_case gaia_multiband.xml gaia_mapping.jovial gaia_multiband_annotated.vot "pkfield"
-mv ./output/ts_summary.md  ./output/gaia_summary.md
-mv ./output/ts_plot.png  ./output/gaia_timeseries.png
-compare_files "gaia_summary.md"
-
-
+else
+    echo "Unrecognized option"
+    exit 1
+fi
